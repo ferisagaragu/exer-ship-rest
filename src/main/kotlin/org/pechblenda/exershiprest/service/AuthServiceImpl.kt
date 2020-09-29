@@ -9,7 +9,6 @@ import org.pechblenda.exershiprest.security.UserPrinciple
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
 import org.pechblenda.rest.Request
 import org.pechblenda.rest.Response
-import org.pechblenda.rest.helper.RequestIgnore
 import org.pechblenda.security.JwtProvider
 import org.pechblenda.storage.FirebaseStorage
 import org.pechblenda.util.Avatar
@@ -125,7 +124,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			".png",
 			avatar.createDefaultAccountImage(
 				"${user.name[0]}".toUpperCase()
-			).readAllBytes()
+			).readBytes()
 		)
 
 		val userOut = userDAO.save(user)
