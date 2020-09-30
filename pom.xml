@@ -19,6 +19,15 @@
 		<kotlin.version>1.2.71</kotlin.version>
 	</properties>
 
+	<profiles>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activatedProperties>application-prod</activatedProperties>
+            </properties>
+        </profile>
+    </profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -82,15 +91,6 @@
 			<version>0.1</version>
 		</dependency>
 	</dependencies>
-
-	<profiles>
-        <profile>
-            <id>prod</id>
-            <properties>
-                <activatedProperties>prod</activatedProperties>
-            </properties>
-        </profile>
-    </profiles>
 
 	<build>
 		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
