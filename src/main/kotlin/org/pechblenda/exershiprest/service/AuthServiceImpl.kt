@@ -81,7 +81,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 		if (user.active) {
 			throw BadRequestException(
-				"Upps el usuario ya esta activado, intenta iniciando sesión de forma habitual ❤"
+				"Upps el usuario ya esta activado, intenta iniciando sesión de forma habitual"
 			)
 		}
 
