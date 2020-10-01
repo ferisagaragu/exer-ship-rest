@@ -74,19 +74,36 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Value("\${message.email-registered}")
 	private lateinit var messageEmailRegistered: String
 
+	@Value("\${message.activate-user-not-fount}")
+	private lateinit var activateUserNotFount: String
+
+	@Value("\${message.activate-user-invalid}")
+	private lateinit var activateUserInvalid: String
+
+	@Transactional(readOnly = true)
 	override fun canActivate(userUid: UUID): ResponseEntity<Any> {
 		val user = userDAO.findById(userUid).orElseThrow {
-			throw BadRequestException("Upps no se encuentra el usuario que quieres activar")
+			throw BadRequestException(activateUserNotFount)
 		}
 
 		if (user.active) {
-			throw BadRequestException(
-				"Upps el usuario ya esta activado, intenta iniciando sesión de forma habitual"
-			)
+			throw BadRequestException(activateUserInvalid)
 		}
 
 		val out = Request()
 		out["canActivate"] = true;
+
+		return response.ok(out)
+	}
+
+	@Transactional(readOnly = true)
+	override fun canRecoverPassword(userUid: UUID): ResponseEntity<Any> {
+		if (userDAO.existsByActivatePassword(userUid)) {
+			throw BadRequestException("Upps el código de recuperación no es valido")
+		}
+
+		val out = Request()
+		out["canRecover"] = true;
 
 		return response.ok(out)
 	}
@@ -128,7 +145,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		)
 
 		val userOut = userDAO.save(user)
-		mailTemplate.sendTemporalActivateLink(user.userName, userOut.uid.toString(), user.email)
+		mailTemplate.sendActivateAccount(user.name, userOut.uid.toString(), user.email)
 
 		return response
 			.toMap(userOut)
@@ -209,8 +226,27 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			.created()
 	}
 
-	override fun recoverPassword(request: Request): ResponseEntity<Any> {
-		TODO("Not yet implemented")
+	@Transactional
+	override fun recoverPasswordEmail(request: Request): ResponseEntity<Any> {
+		val user = request.to<User>(User::class)
+		val userFind = userDAO.findByUserNameOrEmail(user.email).orElseThrow {
+			BadRequestException("Upps no se encuentra ningún registro que coincida con el correo electrónico")
+		}
+
+		userFind.activatePassword = UUID.randomUUID()
+		mailTemplate.sendRecoverPassword(
+			userFind.name,
+			userFind.activatePassword.toString(),
+			userFind.email
+		)
+
+		val out = Request()
+		out["message"] =
+			"Hemos enviado envido un correo electrónico a " +
+			"${userFind.email} con las instrucciones para " +
+			"recuperar tu contraseña"
+
+		return response.ok(out)
 	}
 
 	@Transactional(readOnly = true)

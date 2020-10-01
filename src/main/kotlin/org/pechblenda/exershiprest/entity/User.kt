@@ -20,17 +20,14 @@ class User(
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	var uid: UUID,
 
-	@Required(message = "El nombre es requerido")
 	var name: String,
 
 	var lastName: String,
 
 	@Column(unique = true)
-	@Required(message = "El nombre de usuario es requerido")
 	var userName: String,
 
 	@Column(unique = true)
-	@Required(message = "El correo electrónico es requerido")
 	var email: String,
 
 	var password: String,
@@ -40,6 +37,8 @@ class User(
 
 	@Column(columnDefinition = "boolean default false")
 	var active: Boolean,
+
+	var activatePassword: UUID,
 
 	@Lob
 	var photo: String,

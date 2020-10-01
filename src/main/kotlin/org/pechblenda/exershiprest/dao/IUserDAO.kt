@@ -17,6 +17,8 @@ interface IUserDAO: CrudRepository<User, UUID> {
 
 	fun existsByEmail(email: String): Boolean
 
+	fun existsByActivatePassword(userUUID: UUID): Boolean
+
 	@Query(
 		"select user from User user where " +
 		"user.email = :userName or user.userName = :userName"

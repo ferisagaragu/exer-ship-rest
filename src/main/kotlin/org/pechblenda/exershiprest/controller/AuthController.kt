@@ -39,6 +39,17 @@ class AuthController(
 		}
 	}
 
+	@PostMapping("/recover-password-email")
+	fun recoverPasswordEmail(
+		@RequestBody request: Request
+	): ResponseEntity<Any> {
+		return try {
+			authService.recoverPasswordEmail(request)
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
 	@PostMapping("/sign-up")
 	fun signUp(
 		@RequestBody request: Request
