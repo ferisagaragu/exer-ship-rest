@@ -50,6 +50,28 @@ class AuthController(
 		}
 	}
 
+	@PostMapping("/activate-account")
+	fun activateAccount(
+		@RequestBody request: Request
+	): ResponseEntity<Any> {
+		return try {
+			authService.activateAccount(request)
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
+	@PostMapping("/change-password")
+	fun changePassword(
+		@RequestBody request: Request
+	): ResponseEntity<Any> {
+		return try {
+			authService.changePassword(request)
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
 	@PostMapping("/recover-password")
 	fun recoverPasswordEmail(
 		@RequestBody request: Request
@@ -78,28 +100,6 @@ class AuthController(
 	): ResponseEntity<Any> {
 		return try {
 			authService.signIn(request)
-		} catch (e: ResponseStatusException) {
-			httpExceptionResponse.error(e)
-		}
-	}
-
-	@PostMapping("/activate-account")
-	fun activateAccount(
-		@RequestBody request: Request
-	): ResponseEntity<Any> {
-		return try {
-			authService.activateAccount(request)
-		} catch (e: ResponseStatusException) {
-			httpExceptionResponse.error(e)
-		}
-	}
-
-	@PostMapping("/change-password")
-	fun changePassword(
-		@RequestBody request: Request
-	): ResponseEntity<Any> {
-		return try {
-			authService.changePassword(request)
 		} catch (e: ResponseStatusException) {
 			httpExceptionResponse.error(e)
 		}

@@ -7,6 +7,7 @@ import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.security.UserPrinciple
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
+import org.pechblenda.exershiprest.service.message.AuthMessage
 import org.pechblenda.rest.Request
 import org.pechblenda.rest.Response
 import org.pechblenda.security.JwtProvider
@@ -15,7 +16,6 @@ import org.pechblenda.util.Avatar
 import org.pechblenda.util.Text
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -59,35 +59,17 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Autowired
 	private lateinit var avatar: Avatar
 
-	@Value("\${message.name-required}")
-	private lateinit var messageNameRequired: String
-
-	@Value("\${message.user-name-required}")
-	private lateinit var messageUserNameRequired: String
-
-	@Value("\${message.email-required}")
-	private lateinit var messageEmailRequired: String
-
-	@Value("\${message.user-name-registered}")
-	private lateinit var messageUserNameRegistered: String
-
-	@Value("\${message.email-registered}")
-	private lateinit var messageEmailRegistered: String
-
-	@Value("\${message.activate-user-not-fount}")
-	private lateinit var activateUserNotFount: String
-
-	@Value("\${message.activate-user-invalid}")
-	private lateinit var activateUserInvalid: String
+	@Autowired
+	private lateinit var message: AuthMessage
 
 	@Transactional(readOnly = true)
 	override fun canActivate(userUid: UUID): ResponseEntity<Any> {
 		val user = userDAO.findById(userUid).orElseThrow {
-			throw BadRequestException(activateUserNotFount)
+			throw BadRequestException(message.activateUserNotFount)
 		}
 
 		if (user.active) {
-			throw BadRequestException(activateUserInvalid)
+			throw BadRequestException(message.activateUserInvalid)
 		}
 
 		val out = Request()
@@ -99,7 +81,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Transactional(readOnly = true)
 	override fun canChangePassword(activatePassword: UUID): ResponseEntity<Any> {
 		if (!userDAO.existsByActivatePassword(activatePassword)) {
-			throw BadRequestException("Upps el código de recuperación no es valido")
+			throw BadRequestException(message.recoverCodeInvalid)
 		}
 
 		val out = Request()
@@ -109,28 +91,90 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	}
 
 	@Transactional
+	override fun activateAccount(request: Request): ResponseEntity<Any> {
+		val user = request.to<User>(User::class, false)
+
+		if (user.password == null) {
+			throw BadRequestException(message.passwordRequired)
+		}
+
+		if (user.password.isEmpty()) {
+			throw BadRequestException(message.passwordRequired)
+		}
+
+		if (user.uid == null) {
+			throw BadRequestException(message.uidRequired)
+		}
+
+		val findUser = userDAO.findById(user.uid).orElseThrow {
+			throw BadRequestException(message.userNotFount)
+		}
+
+		findUser.password = passwordEncoder.encode(user.password)
+		findUser.active = true
+		findUser.enabled = true
+
+		return response.ok(message.accountActivated)
+	}
+
+	@Transactional
+	override fun changePassword(request: Request): ResponseEntity<Any> {
+		val user = request.to<User>(User::class)
+		val userFind = userDAO.findByActivatePassword(user.activatePassword!!).orElseThrow {
+			throw BadRequestException(message.accountNotMatch)
+		}
+
+		userFind.activatePassword = null
+		userFind.password = passwordEncoder.encode(user.password)
+
+		return response.ok(message.passwordChanged)
+	}
+
+	@Transactional
+	override fun recoverPassword(request: Request): ResponseEntity<Any> {
+		val user = request.to<User>(User::class)
+		val userFind = userDAO.findByUserNameOrEmail(user.email).orElseThrow {
+			BadRequestException(message.accountNotMatch)
+		}
+
+		userFind.activatePassword = UUID.randomUUID()
+		mailTemplate.sendRecoverPassword(
+			userFind.name,
+			userFind.activatePassword.toString(),
+			userFind.email
+		)
+
+		return response.ok(
+			message.recoverInstruction.replace(
+				"{email}",
+				userFind.email
+			)
+		)
+	}
+
+	@Transactional
 	override fun signUp(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 		val temporalPassword = text.unique()
 
 		if (user.name.isEmpty()) {
-			throw BadRequestException(messageNameRequired)
+			throw BadRequestException(message.nameRequired)
 		}
 
 		if (user.userName.isEmpty()) {
-			throw BadRequestException(messageUserNameRequired)
+			throw BadRequestException(message.userNameRequired)
 		}
 
 		if (user.email.isEmpty()) {
-			throw BadRequestException(messageEmailRequired)
+			throw BadRequestException(message.emailRequired)
 		}
 
 		if (userDAO.existsByUserName(user.userName)) {
-			throw BadRequestException(messageUserNameRegistered)
+			throw BadRequestException(message.userNameRegistered)
 		}
 
 		if (userDAO.existsByEmail(user.email)) {
-			throw BadRequestException(messageEmailRegistered)
+			throw BadRequestException(message.emailRegistered)
 		}
 
 		user.password = passwordEncoder.encode(temporalPassword)
@@ -147,10 +191,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		val userOut = userDAO.save(user)
 		mailTemplate.sendActivateAccount(user.name, userOut.uid.toString(), user.email)
 
-		return response.created(
-			"Tu cuenta a sido creada con éxito, te enviamos " +
-			"un correo electrónico con instrucciones de como activarla"
-		)
+		return response.created(message.accountCreated)
 	}
 
 	@Transactional
@@ -158,7 +199,16 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		val user = request.to<User>(User::class)
 		val userOut = userDAO.findByUserNameOrEmail(
 			user.userName
-		).orElseThrow { throw BadRequestException("Upps no se encontró el usuario") }
+		).orElseThrow { throw BadRequestException(message.userNotFount) }
+
+		if (!userOut.active) {
+			throw BadRequestException(message.accountNotActivate)
+		}
+
+		if (!userOut.enabled) {
+			throw BadRequestException(message.accountBlocked)
+		}
+
 		var session: Map<String, Any>
 
 		try {
@@ -171,7 +221,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 			session = jwtProvider.generateJwtToken(authentication)
 		} catch (e: Exception) {
-			throw UnauthenticatedException("Upps la contraseña es incorrecta");
+			throw UnauthenticatedException(message.passwordIncorrect);
 		}
 
 		var out = response.toMap(
@@ -186,71 +236,10 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			.ok()
 	}
 
-	@Transactional
-	override fun activateAccount(request: Request): ResponseEntity<Any> {
-		val user = request.to<User>(User::class, false)
-
-		if (user.password == null) {
-			throw BadRequestException("Upps la contraseña es requerida")
-		}
-
-		if (user.password.isEmpty()) {
-			throw BadRequestException("Upps la contraseña es requerida")
-		}
-
-		if (user.uid == null) {
-			throw BadRequestException("Upps el uid del usuario es requerido")
-		}
-
-		val findUser = userDAO.findById(user.uid).orElseThrow {
-			throw BadRequestException("Upps no se encuentra el usuario")
-		}
-
-		findUser.password = passwordEncoder.encode(user.password)
-		findUser.active = true
-		findUser.enabled = true
-
-		return response.ok("Tu cuenta a sido activada con éxito")
-	}
-
-	@Transactional
-	override fun recoverPassword(request: Request): ResponseEntity<Any> {
-		val user = request.to<User>(User::class)
-		val userFind = userDAO.findByUserNameOrEmail(user.email).orElseThrow {
-			BadRequestException("Upps no se encuentra ningún registro que coincida con el correo electrónico")
-		}
-
-		userFind.activatePassword = UUID.randomUUID()
-		mailTemplate.sendRecoverPassword(
-			userFind.name,
-			userFind.activatePassword.toString(),
-			userFind.email
-		)
-
-		return response.ok(
-			"Hemos enviado envido un correo electrónico a " +
-			"${userFind.email} con las instrucciones para " +
-			"recuperar tu contraseña"
-		)
-	}
-
-	@Transactional
-	override fun changePassword(request: Request): ResponseEntity<Any> {
-		val user = request.to<User>(User::class)
-		val userFind = userDAO.findByActivatePassword(user.activatePassword!!).orElseThrow {
-			throw BadRequestException("Upps no se encuentra ningún registro que coincida con el correo electrónico")
-		}
-
-		userFind.activatePassword = null
-		userFind.password = passwordEncoder.encode(user.password)
-
-		return response.ok("Has cambiado tu contraseña con éxito")
-	}
-
 	@Transactional(readOnly = true)
 	override fun loadUserByUsername(userName: String): UserDetails {
 		val user: User = userDAO.findByUserName(userName).orElseThrow {
-			UsernameNotFoundException("Upps no se encontró el usuario")
+			UsernameNotFoundException(message.userNotFount)
 		}
 		return UserPrinciple.build(user)
 	}
