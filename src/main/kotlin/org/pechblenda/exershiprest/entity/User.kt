@@ -38,7 +38,7 @@ class User(
 	@Column(columnDefinition = "boolean default false")
 	var active: Boolean,
 
-	var activatePassword: UUID,
+	var activatePassword: UUID?,
 
 	@Lob
 	var photo: String,

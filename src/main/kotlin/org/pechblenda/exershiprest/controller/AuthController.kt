@@ -28,7 +28,7 @@ class AuthController(
 	private val httpExceptionResponse: HttpExceptionResponse
 ) {
 
-	@GetMapping("/can-activate/{userUid}")
+	@GetMapping("/can-activate-account/{userUid}")
 	fun canActivate(
 		@PathVariable("userUid") userUid: UUID
 	): ResponseEntity<Any> {
@@ -39,12 +39,23 @@ class AuthController(
 		}
 	}
 
-	@PostMapping("/recover-password-email")
+	@GetMapping("/can-change-password/{activatePassword}")
+	fun canChangePassword(
+		@PathVariable("activatePassword") activatePassword: UUID
+	): ResponseEntity<Any> {
+		return try {
+			authService.canChangePassword(activatePassword)
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
+	@PostMapping("/recover-password")
 	fun recoverPasswordEmail(
 		@RequestBody request: Request
 	): ResponseEntity<Any> {
 		return try {
-			authService.recoverPasswordEmail(request)
+			authService.recoverPassword(request)
 		} catch (e: ResponseStatusException) {
 			httpExceptionResponse.error(e)
 		}
@@ -78,6 +89,17 @@ class AuthController(
 	): ResponseEntity<Any> {
 		return try {
 			authService.activateAccount(request)
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
+	@PostMapping("/change-password")
+	fun changePassword(
+		@RequestBody request: Request
+	): ResponseEntity<Any> {
+		return try {
+			authService.changePassword(request)
 		} catch (e: ResponseStatusException) {
 			httpExceptionResponse.error(e)
 		}

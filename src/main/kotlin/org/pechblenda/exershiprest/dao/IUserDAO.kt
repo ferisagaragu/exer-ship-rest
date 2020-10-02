@@ -13,11 +13,13 @@ interface IUserDAO: CrudRepository<User, UUID> {
 
 	fun findByUserName(userName: String): Optional<User>
 
+	fun findByActivatePassword(activatePassword: UUID?): Optional<User>
+
 	fun existsByUserName(userName: String): Boolean
 
 	fun existsByEmail(email: String): Boolean
 
-	fun existsByActivatePassword(userUUID: UUID): Boolean
+	fun existsByActivatePassword(activatePassword: UUID): Boolean
 
 	@Query(
 		"select user from User user where " +
