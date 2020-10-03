@@ -1,8 +1,8 @@
 package org.pechblenda.exershiprest.controller
 
 import org.pechblenda.exception.HttpExceptionResponse
-import org.pechblenda.exershiprest.service.`interface`.IAuthService
 import org.pechblenda.rest.Request
+import org.pechblenda.exershiprest.service.`interface`.IAuthService
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin

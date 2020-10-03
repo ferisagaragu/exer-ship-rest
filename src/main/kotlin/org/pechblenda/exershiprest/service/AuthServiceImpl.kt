@@ -92,7 +92,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 	@Transactional
 	override fun activateAccount(request: Request): ResponseEntity<Any> {
-		val user = request.to<User>(User::class, false)
+		val user = request.to<User>(User::class)
 
 		if (user.password == null) {
 			throw BadRequestException(message.passwordRequired)
@@ -108,6 +108,10 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 		val findUser = userDAO.findById(user.uid).orElseThrow {
 			throw BadRequestException(message.userNotFount)
+		}
+
+		if (findUser.active) {
+			throw BadRequestException(message.accountBeActivated)
 		}
 
 		findUser.password = passwordEncoder.encode(user.password)
@@ -194,7 +198,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		return response.created(message.accountCreated)
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	override fun signIn(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 		val userOut = userDAO.findByUserNameOrEmail(
@@ -231,7 +235,12 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		out["session"] = session
 
 		return out
-			.exclude("password")
+			.exclude(
+				"password",
+				"enabled",
+				"active",
+				"activatePassword"
+			)
 			.firstId()
 			.ok()
 	}

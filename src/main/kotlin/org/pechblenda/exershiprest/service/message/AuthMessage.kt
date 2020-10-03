@@ -17,6 +17,8 @@ class AuthMessage(
 	val uidRequired: String,
 	@Value("\${message.auth.user-not-fount}")
 	val userNotFount: String,
+	@Value("\${message.auth.account-be-activated}")
+	val accountBeActivated: String,
 	@Value("\${message.auth.account-activated}")
 	val accountActivated: String,
 	@Value("\${message.auth.account-not-match}")

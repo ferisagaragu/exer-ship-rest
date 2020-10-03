@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class ExershiprestApplication
+class ExerShipRestApplication
 
 fun main(args: Array<String>) {
-	runApplication<ExershiprestApplication>(*args)
+	runApplication<ExerShipRestApplication>(*args)
 }
