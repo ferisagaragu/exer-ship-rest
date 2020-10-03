@@ -32,6 +32,12 @@
 	<profiles>
         <profile>
             <id>prod</id>
+            <activation>
+				<property>
+					<name>env</name>
+					<value>prod</value>
+				</property>
+			</activation>
             <properties>
                 <activatedProperties>application-prod</activatedProperties>
             </properties>
