@@ -13,4 +13,5 @@ interface IAuthService {
 	@Throws fun recoverPassword(request: Request): ResponseEntity<Any>
 	@Throws fun signUp(request: Request): ResponseEntity<Any>
 	@Throws fun signIn(request: Request): ResponseEntity<Any>
+	@Throws fun refreshToken(request: Request): ResponseEntity<Any>
 }

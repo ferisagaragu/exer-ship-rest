@@ -44,5 +44,7 @@ class AuthMessage(
 	@Value("\${message.auth.account-blocked}")
 	val accountBlocked: String,
 	@Value("\${message.auth.password-incorrect}")
-	val passwordIncorrect: String
+	val passwordIncorrect: String,
+	@Value("\${message.auth.refresh-token-required}")
+	val refreshTokenRequest: String
 )
