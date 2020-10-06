@@ -1,15 +1,22 @@
 package org.pechblenda.exershiprest.controller
 
+import com.nhaarman.mockito_kotlin.any
+
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.runner.RunWith
+
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito
+
 import org.pechblenda.exershiprest.dao.IUserDAO
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
-
 import org.pechblenda.rest.Request
+import org.pechblenda.storage.FirebaseStorage
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -17,21 +24,21 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 import java.util.UUID
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner::class)
-@TestPropertySource(locations = [ "classpath:application-test.properties" ])
+@TestPropertySource(locations = ["classpath:application-test.properties"])
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthControllerTests {
 
@@ -44,68 +51,55 @@ class AuthControllerTests {
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
 
-	@MockBean
-	private lateinit var mailTemplate: MailTemplate //se usa para que no se envíe el correo de verificación
+	@MockBean //se usa para que no se envíe el correo de verificación
+	private lateinit var mailTemplate: MailTemplate
 
-	private lateinit var userMount: User
-	private lateinit var userMountActivate: User
-	private lateinit var userMountCanActive: User
+	@MockBean
+	private lateinit var firebaseStorage: FirebaseStorage
+
+	private var userMount: User? = null
 
 	@BeforeAll
 	fun beforeAll() {
-		userMount = userDAO.save(
-			User(
-				uid = UUID.randomUUID(),
-				name = "Fernando",
-				lastName = "",
-				userName = "fernnypay95",
-	      email = "ferisagaragu@gmail.com",
-		    password = encoder.encode("Fernny27"),
-		    enabled = false,
-        active = false,
-				activatePassword = UUID.randomUUID(),
-        photo = "",
-        refreshToken = "",
-        roles = mutableListOf()
-		))
+		restoreUser()
+	}
 
-		userMountActivate = userDAO.save(
-			User(
-				uid = UUID.randomUUID(),
-				name = "Fernando",
-				lastName = "",
-				userName = "fernnypay96",
-	      email = "ferisagaragu@gmail.comm",
-		    password = encoder.encode("Fernny27"),
-		    enabled = false,
-        active = false,
-				activatePassword = UUID.randomUUID(),
-        photo = "",
-        refreshToken = "",
-        roles = mutableListOf()
-		))
+	@BeforeEach
+	fun beforeEach() {
+		restoreUser()
+	}
 
-		userMountCanActive = userDAO.save(
-			User(
-				uid = UUID.randomUUID(),
-				name = "Fernando",
-				lastName = "",
-				userName = "fernny",
-	      email = "ferisaga@gmail.com",
-		    password = encoder.encode("Fernny27"),
-		    enabled = false,
-        active = false,
-				activatePassword = UUID.randomUUID(),
-        photo = "",
-        refreshToken = "",
-        roles = mutableListOf()
-		))
+	fun restoreUser() {
+		if (userMount != null) {
+			userMount = userDAO.findById(userMount!!.uid).orElse(null)
+			userMount!!.enabled = false
+			userMount!!.active = false
+			userMount!!.activatePassword = UUID.randomUUID()
+			userMount = userDAO.save(userMount!!)
+		} else {
+			userMount = userDAO.save(
+				User(
+					uid = UUID.randomUUID(),
+					name = "fakeName",
+					lastName = "",
+					userName = "fakeUser",
+					email = "no-real@fake.com",
+					password = encoder.encode("fake"),
+					enabled = false,
+					active = false,
+					activatePassword = UUID.randomUUID(),
+					photo = "",
+					refreshToken = "",
+					roles = mutableListOf()
+				)
+			)
+		}
 	}
 
 	@Test
 	fun `can-activate-account works`() {
 		val response = mockMvc.perform(
-			get("/auth/can-activate-account/${userMount.uid}")
+			get("/auth/can-activate-account/${userMount!!.uid}")
 		).andDo(print())
 			.andExpect(status().isOk)
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
@@ -116,11 +110,22 @@ class AuthControllerTests {
 	}
 
 	@Test
-	fun `can-activate-account param is not uid`() {
-		mockMvc.perform(
-			get("/auth/can-activate-account/a")
+	fun `can-activate-account account is activate`() {
+		userMount!!.active = true
+		userDAO.save(userMount!!)
+
+		val response = mockMvc.perform(
+			get("/auth/can-activate-account/${userMount!!.uid}")
 		).andDo(print())
 			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps tu cuenta ya esta activada, intenta iniciando sesiÃ³n de forma habitual"
+		)
 	}
 
 	@Test
@@ -142,7 +147,7 @@ class AuthControllerTests {
 	@Test
 	fun `can-change-password works`() {
 		val response = mockMvc.perform(
-			get("/auth/can-change-password/${userMountCanActive.activatePassword}")
+			get("/auth/can-change-password/${userMount!!.activatePassword}")
 		).andDo(print())
 			.andExpect(status().isOk)
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
@@ -179,7 +184,7 @@ class AuthControllerTests {
 	@Test
 	fun `activate-account works`() {
 		val requestBody = Request()
-		requestBody["uid"] = userMountActivate.uid
+		requestBody["uid"] = userMount!!.uid
 		requestBody["password"] = "Fernny27"
 
 		val response = mockMvc.perform(
@@ -236,7 +241,7 @@ class AuthControllerTests {
 	@Test
 	fun `change-password works`() {
 		val requestBody = Request()
-		requestBody["activatePassword"] = userMount.activatePassword
+		requestBody["activatePassword"] = userMount!!.activatePassword
 		requestBody["password"] = "Fernny27"
 
 		val response = mockMvc.perform(
@@ -253,7 +258,7 @@ class AuthControllerTests {
 	}
 
 	@Test
-	fun `change-password null params works`() {
+	fun `change-password null params`() {
 		val requestBody = Request()
 		requestBody["activatePassword"] = null
 		requestBody["password"] = ""
@@ -290,6 +295,102 @@ class AuthControllerTests {
 		assertEquals(
 			request.toString("message"),
 			"Upps no se encuentra ningÃºn registro que coincida con el correo electrÃ³nico"
+		)
+	}
+
+	@Test
+	fun `recover-password works`() {
+		val requestBody = Request()
+		requestBody["email"] = userMount!!.email
+
+		val response = mockMvc.perform(
+			post("/auth/recover-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Hemos enviado envido un correo electrÃ³nico a no-real@fake.com con " +
+				"las instrucciones para recuperar tu contraseÃ±a"
+		)
+	}
+
+	@Test
+	fun `recover-password null params`() {
+		val requestBody = Request()
+		requestBody["email"] = ""
+
+		val response = mockMvc.perform(
+			post("/auth/recover-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps no se encuentra ningÃºn registro que coincida con el correo electrÃ³nico"
+		)
+	}
+
+	@Test
+	fun `recover-password incorrect params`() {
+		val requestBody = Request()
+		requestBody["email"] = "realnoFake@fake.com"
+
+		val response = mockMvc.perform(
+			post("/auth/recover-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps no se encuentra ningÃºn registro que coincida con el correo electrÃ³nico"
+		)
+	}
+
+	@Test
+	fun `sign-up works`() {
+		Mockito.doReturn("url-image")
+			.`when`(firebaseStorage).put(
+				anyString(),
+				anyString(),
+				anyString(),
+				any<ByteArray>()
+			)
+
+		val requestBody = Request()
+		requestBody["name"] = "Take2"
+		requestBody["userName"] = "userfakeName"
+		requestBody["email"] = "ultraFake@false.com"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isCreated)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Tu cuenta a sido creada con Ã©xito, te enviamos un correo " +
+			"electrÃ³nico con instrucciones de como activarla"
 		)
 	}
 
