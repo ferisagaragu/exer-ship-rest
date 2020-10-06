@@ -10,7 +10,6 @@ import java.util.UUID
 import org.pechblenda.exershiprest.entity.User
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
-
 class UserPrinciple(
 	val id: UUID,
 	private val userName: String,

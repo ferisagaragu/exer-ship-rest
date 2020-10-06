@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Get git repository') {
+            steps {
+                git branch: 'develop',
+                credentialsId: 'gitCredential',
+                url: 'https://github.com/ferisagaragu/exer-ship-rest.git'
+            }
+        }
+
+        stage('Generate app') {
+            steps {
+                bat '''
+                   "C:\\Program Files\\apache-maven-3.6.3\\bin\\mvn.cmd" clean verify sonar:sonar
+                '''
+            }
+        }
+
+        stage('Kill process port') {
+            steps {
+                bat '''
+                   "C:\\Users\\Qualtop\\AppData\\Roaming\\npm\\kill-port.cmd" 5001
+                '''
+            }
+        }
+
+        stage('Mount app') {
+            steps {
+                bat '''
+                   del /f "C:\\jar-server\\server\\exer-ship-rest-0.0.1-SNAPSHOT.jar"
+                   copy "C:\\Windows\\System32\\config\\systemprofile\\AppData\\Local\\Jenkins.jenkins\\workspace\\exer-ship-rest\\target\\exer-ship-rest-0.0.1-SNAPSHOT.jar" "C:\\jar-server\\server\\exer-ship-rest-0.0.1-SNAPSHOT.jar"
+                '''
+            }
+        }
+    }
+}

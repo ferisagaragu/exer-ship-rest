@@ -8,7 +8,6 @@ import org.springframework.data.repository.CrudRepository
 import java.util.UUID
 import java.util.Optional
 
-
 interface IUserDAO: CrudRepository<User, UUID> {
 
 	fun findByUserName(userName: String): Optional<User>

@@ -1,7 +1,5 @@
 package org.pechblenda.exershiprest.entity
 
-import org.pechblenda.rest.annotation.Required
-
 import java.util.UUID
 
 import javax.persistence.Column
@@ -42,6 +40,8 @@ class User(
 
 	@Lob
 	var photo: String,
+
+	var refreshToken: String,
 
 	@ManyToMany
 	var roles: MutableList<Role>

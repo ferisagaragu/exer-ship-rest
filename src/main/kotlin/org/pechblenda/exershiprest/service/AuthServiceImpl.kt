@@ -26,8 +26,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
-import java.util.UUID
+import java.util.*
 
 @Service
 class AuthServiceImpl: IAuthService, UserDetailsService {
@@ -73,7 +72,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		}
 
 		val out = Request()
-		out["canActivate"] = true;
+		out["canActivate"] = true
 
 		return response.ok(out)
 	}
@@ -94,16 +93,8 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	override fun activateAccount(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 
-		if (user.password == null) {
-			throw BadRequestException(message.passwordRequired)
-		}
-
 		if (user.password.isEmpty()) {
 			throw BadRequestException(message.passwordRequired)
-		}
-
-		if (user.uid == null) {
-			throw BadRequestException(message.uidRequired)
 		}
 
 		val findUser = userDAO.findById(user.uid).orElseThrow {
@@ -124,6 +115,11 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Transactional
 	override fun changePassword(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
+
+		if (user.password.isEmpty()) {
+			throw BadRequestException(message.passwordRequired)
+		}
+
 		val userFind = userDAO.findByActivatePassword(user.activatePassword!!).orElseThrow {
 			throw BadRequestException(message.accountNotMatch)
 		}
@@ -198,7 +194,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		return response.created(message.accountCreated)
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	override fun signIn(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 		val userOut = userDAO.findByUserNameOrEmail(
@@ -213,7 +209,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			throw BadRequestException(message.accountBlocked)
 		}
 
-		var session: Map<String, Any>
+		val session: Map<String, Any>
 
 		try {
 			val authentication: Authentication = authenticationManager.authenticate(
@@ -223,12 +219,18 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 				)
 			)
 
-			session = jwtProvider.generateJwtToken(authentication)
+			if (userOut.refreshToken.isEmpty() || jwtProvider.isJwtExpire(userOut.refreshToken)) {
+				session = jwtProvider.generateJwtTokenRefresh(authentication)
+				userOut.refreshToken = session["refreshToken"] as String
+			} else {
+				session = jwtProvider.generateJwtToken(authentication)
+				session["refreshToken"]	= userOut.refreshToken
+			}
 		} catch (e: Exception) {
-			throw UnauthenticatedException(message.passwordIncorrect);
+			throw UnauthenticatedException(message.passwordIncorrect)
 		}
 
-		var out = response.toMap(
+		val out = response.toMap(
 			userOut
 		)
 
@@ -239,10 +241,28 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 				"password",
 				"enabled",
 				"active",
-				"activatePassword"
+				"activatePassword",
+				"refreshToken"
 			)
 			.firstId()
 			.ok()
+	}
+
+	@Transactional
+	override fun refreshToken(request: Request): ResponseEntity<Any> {
+		if (!request.containsKey("refreshToken")) {
+			throw BadRequestException(message.refreshTokenRequest)
+		}
+
+		if (request["refreshToken"].toString().isEmpty()) {
+			throw BadRequestException(message.refreshTokenRequest)
+		}
+
+		return response.ok(
+			jwtProvider.refreshToken(
+				request["refreshToken"].toString()
+			)
+		)
 	}
 
 	@Transactional(readOnly = true)
