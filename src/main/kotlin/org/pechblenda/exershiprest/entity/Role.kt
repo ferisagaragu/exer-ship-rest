@@ -13,6 +13,6 @@ import javax.persistence.Table
 class Role (
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	var id: UUID,
+	var uid: UUID,
 	var name: String
 )
