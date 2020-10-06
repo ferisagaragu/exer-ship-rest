@@ -394,4 +394,195 @@ class AuthControllerTests {
 		)
 	}
 
+	@Test
+	fun `sign-up repeat userName`() {
+		val requestBody = Request()
+		requestBody["name"] = "Take2"
+		requestBody["userName"] = "fakeUser"
+		requestBody["email"] = "no-real@fakes.com"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"El nombre de usuario ya esta registrado"
+		)
+	}
+
+	@Test
+	fun `sign-up repeat email`() {
+		val requestBody = Request()
+		requestBody["name"] = "Take2"
+		requestBody["userName"] = "fakeUser1"
+		requestBody["email"] = "no-real@fake.com"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-up")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"El correo electrÃ³nico ya esta registrado registrado"
+		)
+	}
+
+	@Test
+	fun `sign-in works`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser"
+		requestBody["password"] = "fake"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request.toMap("data")["name"],
+			"fakeName"
+		)
+	}
+
+	@Test
+	fun `sign-in bad user`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser334"
+		requestBody["password"] = "fake"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps no se encuentra el usuario"
+		)
+	}
+
+	@Test
+	fun `sign-in bad password`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser"
+		requestBody["password"] = "fake123"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isUnauthorized)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps la contraseÃ±a es incorrecta"
+		)
+	}
+
+	@Test
+	fun `refresh-token works`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userMount!!.password = encoder.encode("fake")
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser"
+		requestBody["password"] = "fake"
+
+		val response = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val refreshToken = (Request().toRequest(response.contentAsString)
+			.toMap("data")["session"] as Map<String, Any>)["refreshToken"]
+
+		userMount!!.refreshToken = refreshToken as String
+		userDAO.save(userMount!!)
+
+		val requestBodyRefresh = Request()
+		requestBodyRefresh["refreshToken"] = userMount!!.refreshToken
+
+		val responseRefresh = mockMvc.perform(
+			post("/auth/refresh-token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBodyRefresh.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+	}
+
+	@Test
+	fun `refresh-token bad token`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userMount!!.password = encoder.encode("fake")
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["refreshToken"] =
+			"eyJhbGciOiJIUzUxMiJ9." +
+			"eyJzdWIiOiJmYWtlVXNlciIsImlhdCI6MTYwMTk5OTg1OCwiZXhwIjoxNjAyMDE3ODU4fQ." +
+			"mqRnjroGbSt0kItfQs-uHxtapPWsXyraWq_kgNIIZDyuXr6jdf2pPxSfd29O8o8gjROTdL" +
+			"cfOSTLYcrNuZ70Nt"
+
+		val response = mockMvc.perform(
+			post("/auth/refresh-token")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isUnauthorized)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"refresh token it's not valid"
+		)
+	}
+
 }
