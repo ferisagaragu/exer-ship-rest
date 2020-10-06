@@ -13,7 +13,7 @@ pipeline {
         stage('Generate app') {
             steps {
                 bat '''
-                   "C:\\Program Files\\apache-maven-3.6.3\\bin\\mvn.cmd" package
+                   "C:\\Program Files\\apache-maven-3.6.3\\bin\\mvn.cmd" clean verify sonar:sonar
                 '''
             }
         }

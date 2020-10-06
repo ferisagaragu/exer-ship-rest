@@ -115,6 +115,11 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Transactional
 	override fun changePassword(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
+
+		if (user.password.isEmpty()) {
+			throw BadRequestException(message.passwordRequired)
+		}
+
 		val userFind = userDAO.findByActivatePassword(user.activatePassword!!).orElseThrow {
 			throw BadRequestException(message.accountNotMatch)
 		}
