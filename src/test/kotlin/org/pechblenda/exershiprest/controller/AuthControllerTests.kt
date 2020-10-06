@@ -581,7 +581,7 @@ class AuthControllerTests {
 
 		assertEquals(
 			request["message"],
-			"refresh token it's not valid"
+			"refresh token has expired"
 		)
 	}
 
