@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -61,6 +62,28 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 	@Autowired
 	private lateinit var message: AuthMessage
+
+	@Transactional(readOnly = true)
+	override fun validateToken(): ResponseEntity<Any> {
+		val user = userDAO.findByUserName(
+			SecurityContextHolder.getContext().authentication.name
+		).orElseThrow {
+			throw BadRequestException(message.userNotFount)
+		}
+
+		if (!user.active) {
+			throw BadRequestException(message.accountNotActivate)
+		}
+
+		if (!user.enabled) {
+			throw BadRequestException(message.accountBlocked)
+		}
+
+		val request = Request()
+		request["validateToken"] = true
+
+		return response.ok(request)
+	}
 
 	@Transactional(readOnly = true)
 	override fun canActivate(userUid: UUID): ResponseEntity<Any> {

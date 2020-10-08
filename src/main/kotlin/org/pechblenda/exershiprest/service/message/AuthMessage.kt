@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class AuthMessage(
+	@Value("\${message.auth.account-not-active}")
+	val accountNotActive: String,
 	@Value("\${message.auth.activate-user-not-fount}")
 	val activateUserNotFount: String,
 	@Value("\${message.auth.activate-user-invalid}")
