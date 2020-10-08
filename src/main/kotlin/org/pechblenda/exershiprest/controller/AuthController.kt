@@ -28,6 +28,15 @@ class AuthController(
 	private val httpExceptionResponse: HttpExceptionResponse
 ) {
 
+	@GetMapping("/validate-token")
+	fun validateToken(): ResponseEntity<Any> {
+		return try {
+			authService.validateToken()
+		} catch (e: ResponseStatusException) {
+			httpExceptionResponse.error(e)
+		}
+	}
+
 	@GetMapping("/can-activate-account/{userUid}")
 	fun canActivate(
 		@PathVariable("userUid") userUid: UUID

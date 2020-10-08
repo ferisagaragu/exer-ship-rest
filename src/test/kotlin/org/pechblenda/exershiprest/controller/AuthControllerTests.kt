@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.TestPropertySource
@@ -94,6 +95,94 @@ class AuthControllerTests {
 				)
 			)
 		}
+	}
+
+	@Test
+	fun `validate-token works`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser"
+		requestBody["password"] = "fake"
+
+		val responseSignIn = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val token = (Request()
+			.toRequest(responseSignIn.contentAsString)
+			.toMap("data")["session"] as Map<String, String>)["token"]
+
+		val response = mockMvc.perform(
+			get("/auth/validate-token")
+			.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(request.toMap("data")["validateToken"], true)
+	}
+
+	@Test
+	fun `validate-token bad token`() {
+		val token = "eyJhbGciOiJIUzUxMiJ9." +
+			"eyJzdWIiOiJmYWtlVXNlciIsImlhdCI6MTYwMjEzNjQ5MSwiZXhwIjoxNjAyMTU0NDkxfQ." +
+			"JwOUiaY74DKwpmp3mpVFtEwD9zmn1yvKRLbXb0tPkL9FgmV82BwkCBcqYNeZgvwy6KLkigft0zDpxemf2rvcxf"
+
+		val response = mockMvc.perform(
+			get("/auth/validate-token")
+			.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+		).andDo(print())
+			.andExpect(status().isUnauthorized)
+	}
+
+	@Test
+	fun `validate-token no is enabled`() {
+		userMount!!.active = true
+		userMount!!.enabled = true
+		userDAO.save(userMount!!)
+
+		val requestBody = Request()
+		requestBody["userName"] = "fakeUser"
+		requestBody["password"] = "fake"
+
+		val responseSignIn = mockMvc.perform(
+			post("/auth/sign-in")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody.toJSON())
+		).andDo(print())
+			.andExpect(status().isOk)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val token = (Request()
+			.toRequest(responseSignIn.contentAsString)
+			.toMap("data")["session"] as Map<String, String>)["token"]
+
+		userMount!!.enabled = false
+		userDAO.save(userMount!!)
+
+		val response = mockMvc.perform(
+			get("/auth/validate-token")
+			.header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+		).andDo(print())
+			.andExpect(status().isBadRequest)
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().response
+
+		val request = Request().toRequest(response.contentAsString)
+
+		assertEquals(
+			request["message"],
+			"Upps tu cuenta se encuentra bloqueada, " +
+				"te enviamos a tu correo electrÃ³nico las razones"
+		)
 	}
 
 	@Test

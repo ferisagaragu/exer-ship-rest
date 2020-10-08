@@ -53,7 +53,14 @@ class WebSecurityConfig(
 	override fun configure(http: HttpSecurity) {
 		http.cors().and().csrf().disable().authorizeRequests()
 			.antMatchers(
-				"/auth/**",
+				"/auth/can-activate-account/**",
+				"/auth/can-change-password/**",
+				"/auth/activate-account",
+				"/auth/change-password",
+				"/auth/recover-password",
+				"/auth/sign-up",
+				"/auth/sign-in",
+				"/auth/refresh-token",
 				"/test/**"
 			).permitAll()
 			.anyRequest()
