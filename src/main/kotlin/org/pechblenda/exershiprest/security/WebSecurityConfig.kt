@@ -1,6 +1,5 @@
 package org.pechblenda.exershiprest.security
 
-
 import org.pechblenda.exershiprest.service.AuthServiceImpl
 import org.pechblenda.security.JwtAuthEntryPoint
 import org.pechblenda.security.JwtAuthTokenFilter
