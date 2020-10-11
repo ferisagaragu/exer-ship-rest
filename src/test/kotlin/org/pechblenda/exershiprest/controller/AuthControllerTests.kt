@@ -90,7 +90,7 @@ class AuthControllerTests {
 					active = false,
 					activatePassword = UUID.randomUUID(),
 					photo = "",
-					refreshToken = "",
+					refreshToken = null,
 					roles = mutableListOf()
 				)
 			)

@@ -243,7 +243,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 				)
 			)
 
-			if (userOut.refreshToken == null || jwtProvider.isJwtExpire("${userOut.refreshToken}")) {
+			if (userOut.refreshToken == null || jwtProvider.isJwtExpire(userOut.refreshToken!!)) {
 				session = jwtProvider.generateJwtTokenRefresh(authentication)
 				userOut.refreshToken = session["refreshToken"] as String
 			} else {
