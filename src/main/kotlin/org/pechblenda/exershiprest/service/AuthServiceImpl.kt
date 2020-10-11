@@ -251,7 +251,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 				session["refreshToken"]	= userOut.refreshToken
 			}
 		} catch (e: Exception) {
-			throw UnauthenticatedException(message.passwordIncorrect)
+			throw UnauthenticatedException(message.passwordIncorrect, e.message!!)
 		}
 
 		val out = response.toMap(
