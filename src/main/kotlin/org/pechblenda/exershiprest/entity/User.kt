@@ -41,7 +41,7 @@ class User(
 	@Lob
 	var photo: String,
 
-	var refreshToken: String,
+	var refreshToken: String?,
 
 	@ManyToMany
 	var roles: MutableList<Role>
