@@ -1,14 +1,18 @@
 package org.pechblenda.exershiprest.service
 
+import org.junit.Rule
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 
+import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
 import org.pechblenda.exershiprest.entity.User
-
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,6 +44,9 @@ class AuthServiceImplTest {
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
 
+	@Rule
+	private var exceptionRule = ExpectedException.none()
+
 	private var userMount: User? = null
 
 	@BeforeAll
@@ -47,11 +54,16 @@ class AuthServiceImplTest {
 		restoreUser()
 	}
 
+	@BeforeEach
+	fun beforeEach() {
+		restoreUser()
+	}
+
 	fun restoreUser() {
 		if (userMount != null) {
 			userMount = userDAO.findById(userMount!!.uid).orElse(null)
-			userMount!!.enabled = false
-			userMount!!.active = false
+			userMount!!.enabled = true
+			userMount!!.active = true
 			userMount!!.activatePassword = UUID.randomUUID()
 			userMount = userDAO.save(userMount!!)
 		} else {
@@ -80,6 +92,50 @@ class AuthServiceImplTest {
 			((authService.validateToken().body as Map<String, Any>)["data"]
 				as Map<String, Any>)["validateToken"],
 			true
+		)
+	}
+
+	@Test
+	fun `test validate user not fount`() {
+		userMount!!.userName = "${userMount!!.userName}123"
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			((authService.validateToken().body as Map<String, Any>)["data"]
+				as Map<String, Any>)["validateToken"]
+		}.message
+
+		assertEquals(message, "400 BAD_REQUEST \"Upps no se encuentra el usuario\"")
+	}
+
+	@Test
+	fun `test validate account not activate`() {
+		userMount!!.active = false
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			((authService.validateToken().body as Map<String, Any>)["data"]
+				as Map<String, Any>)["validateToken"]
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta aun no esta activada, " +
+			"revisa tu correo electrónico para saber como activarla\""
+		)
+	}
+
+	@Test
+	fun `test validate account blocked`() {
+		userMount!!.enabled = false
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			((authService.validateToken().body as Map<String, Any>)["data"]
+				as Map<String, Any>)["validateToken"]
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta se encuentra bloqueada, " +
+			"te enviamos a tu correo electrónico las razones\""
 		)
 	}
 
