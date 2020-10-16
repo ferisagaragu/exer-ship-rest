@@ -1,5 +1,8 @@
 package org.pechblenda.exershiprest.entity
 
+import org.pechblenda.rest.annotation.Key
+import org.pechblenda.rest.enum.DefaultValue
+
 import java.util.UUID
 
 import javax.persistence.Column
@@ -47,9 +50,9 @@ class User(
 	var roles: MutableList<Role>
 ) {
 
-	/*@Key(name = "roles", autoCall = true, defaultNullValue = DefaultValue.JSON_ARRAY)
+	@Key(name = "roles", autoCall = true, defaultNullValue = DefaultValue.JSON_ARRAY)
 	fun convertRoles(): Any {
 		return roles
-	}*/
+	}
 
 }
