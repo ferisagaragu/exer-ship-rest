@@ -14,6 +14,7 @@ import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
+import org.pechblenda.rest.Request
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -136,6 +137,125 @@ class AuthServiceImplTest {
 			message,
 			"400 BAD_REQUEST \"Upps tu cuenta se encuentra bloqueada, " +
 			"te enviamos a tu correo electrónico las razones\""
+		)
+	}
+
+	@Test
+	fun `test validate can activate`() {
+		userMount!!.active = false
+		var body = authService.canActivate(userMount!!.uid).body as Map<String, Any>
+		body = (body["data"] as Map<String, Any>)
+		assertEquals(body["canActivate"], true)
+	}
+
+	@Test
+	fun `test validate account is active`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			authService.canActivate(userMount!!.uid)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta ya esta activada, " +
+			"intenta iniciando sesión de forma habitual\""
+		)
+	}
+
+	@Test
+	fun `test validate can activate not fount user`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			authService.canActivate(UUID.randomUUID())
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps no se encuentra el usuario que quieres activar\""
+		)
+	}
+
+	@Test
+	fun `test validate can change password`() {
+		userMount!!.activatePassword = UUID.randomUUID()
+		var body = authService.canChangePassword(
+			userMount!!.activatePassword!!
+		).body as Map<String, Any>
+		body = (body["data"] as Map<String, Any>)
+
+		assertEquals(body["canChangePassword"], true)
+	}
+
+	@Test
+	fun `test validate can change password code not fount`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			authService.canChangePassword(UUID.randomUUID())
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps el código de recuperación no es valido\""
+		)
+	}
+
+	@Test
+	fun `test activate account`() {
+		userMount!!.active = false
+
+		val request = Request()
+		request["uid"] = userMount!!.uid
+		request["password"] = "fakeUserPassword"
+
+		var message = (
+			authService.activateAccount(
+				request
+			).body as Map<String, Any>
+		)["message"]
+
+		assertEquals(message, "Tu cuenta a sido activada con éxito")
+	}
+
+	@Test
+	fun `test activate account password not fount`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["password"] = ""
+			authService.activateAccount(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps la contraseña es requerida\""
+		)
+	}
+
+	@Test
+	fun `test activate account password user not fount`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["password"] = "asd"
+			request["uid"] = UUID.randomUUID()
+			authService.activateAccount(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps no se encuentra el usuario\""
+		)
+	}
+
+	@Test
+	fun `test activate account is activated`() {
+		userMount!!.active = true
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["password"] = "asd"
+			request["uid"] = userMount!!.uid
+			authService.activateAccount(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta ya esta activada\""
 		)
 	}
 
