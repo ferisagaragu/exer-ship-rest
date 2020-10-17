@@ -1,24 +1,30 @@
 package org.pechblenda.exershiprest.service
 
-import org.junit.Rule
+import com.nhaarman.mockito_kotlin.any
+
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
+
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
 
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
 import org.pechblenda.exershiprest.entity.User
+import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
 import org.pechblenda.rest.Request
+import org.pechblenda.storage.FirebaseStorage
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.TestPropertySource
@@ -45,8 +51,11 @@ class AuthServiceImplTest {
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
 
-	@Rule
-	private var exceptionRule = ExpectedException.none()
+	@MockBean
+	private lateinit var mailTemplate: MailTemplate
+
+	@MockBean
+	private lateinit var firebaseStorage: FirebaseStorage
 
 	private var userMount: User? = null
 
@@ -256,6 +265,239 @@ class AuthServiceImplTest {
 		assertEquals(
 			message,
 			"400 BAD_REQUEST \"Upps tu cuenta ya esta activada\""
+		)
+	}
+
+	@Test
+	fun `test change password`() {
+		userMount!!.activatePassword = UUID.randomUUID()
+
+		val request = Request()
+		request["activatePassword"] = userMount!!.activatePassword
+		request["password"] = "fakeUserPassword"
+
+		var message = (
+			authService.changePassword(
+				request
+			).body as Map<String, Any>
+		)["message"]
+
+		assertEquals(message, "Has cambiado tu contraseña con éxito")
+	}
+
+	@Test
+	fun `test change password is void password`() {
+		userMount!!.activatePassword = UUID.randomUUID()
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["activatePassword"] = userMount!!.activatePassword
+			request["password"] = ""
+			authService.changePassword(request)
+		}.message
+
+		assertEquals(message, "400 BAD_REQUEST \"Upps la contraseña es requerida\"")
+	}
+
+	@Test
+	fun `test change password not activate password`() {
+		userMount!!.activatePassword = UUID.randomUUID()
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["activatePassword"] = UUID.randomUUID()
+			request["password"] = "fake"
+			authService.changePassword(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps no se encuentra ningún " +
+			"registro que coincida con el correo electrónico\""
+		)
+	}
+
+	@Test
+	fun `test recover password`() {
+		val request = Request()
+		request["email"] = "no-realImpl@fake.com"
+
+		var message = (
+			authService.recoverPassword(
+				request
+			).body as Map<String, Any>
+		)["message"]
+
+		assertEquals(
+			message,
+			"Hemos enviado envido un correo " +
+			"electrónico a no-realImpl@fake.com con " +
+			"las instrucciones para recuperar tu contraseña"
+		)
+	}
+
+	@Test
+	fun `test recover password email not fount`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["email"] = "ferisagaragu@gmail.com"
+			authService.recoverPassword(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps no se encuentra ningún " +
+			"registro que coincida con el correo electrónico\""
+		)
+	}
+
+	@Test
+	fun `test sign up`() {
+		Mockito.doReturn("url-image")
+			.`when`(firebaseStorage).put(
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				any<ByteArray>()
+			)
+
+		val request = Request()
+		request["name"] = "userFake123"
+		request["userName"] = "userFake123"
+		request["email"] = "userFake123@fake.com"
+
+		var message = (
+			authService.signUp(
+				request
+			).body as Map<String, Any>
+		)["message"]
+
+		assertEquals(
+			message,
+			"Tu cuenta a sido creada con éxito, " +
+			"te enviamos un correo electrónico con " +
+			"instrucciones de como activarla"
+		)
+	}
+
+	@Test
+	fun `test sign up name not empty`() {
+		Mockito.doReturn("url-image")
+			.`when`(firebaseStorage).put(
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				any<ByteArray>()
+			)
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["name"] = ""
+			request["userName"] = "userFake123"
+			request["email"] = "userFake123@fake.com"
+			authService.signUp(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps el nombre es requerido\""
+		)
+	}
+
+	@Test
+	fun `test sign up user name not empty`() {
+		Mockito.doReturn("url-image")
+			.`when`(firebaseStorage).put(
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				any<ByteArray>()
+			)
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["name"] = "userFake123Name"
+			request["userName"] = ""
+			request["email"] = "userFake123@fake.com"
+			authService.signUp(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps el nombre de usuario es requerido\""
+		)
+	}
+
+	@Test
+	fun `test sign up email not empty`() {
+		Mockito.doReturn("url-image")
+			.`when`(firebaseStorage).put(
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyString(),
+				any<ByteArray>()
+			)
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["name"] = "userFake123Name"
+			request["userName"] = "userFake123"
+			request["email"] = ""
+			authService.signUp(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps el correo electrónico es requerido\""
+		)
+	}
+
+	@Test
+	fun `test sign in`() {
+		val request = Request()
+		request["userName"] = "no-realImpl@fake.com"
+		request["password"] = "fake"
+
+		var email = ((
+			authService.signIn(request).body as Map<String, Any>
+		)["data"] as Map<String, Any>)["email"]
+
+		assertEquals(email, "no-realImpl@fake.com")
+	}
+
+	@Test
+	fun `test sign in account not activate`() {
+		userMount!!.active = false
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["userName"] = "no-realImpl@fake.com"
+			request["password"] = "fake"
+			authService.signIn(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta aun no esta activada, " +
+			"revisa tu correo electrónico para saber como activarla\""
+		)
+	}
+
+	@Test
+	fun `test sign in account blocked`() {
+		userMount!!.enabled = false
+
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["userName"] = "no-realImpl@fake.com"
+			request["password"] = "fake"
+			authService.signIn(request)
+		}.message
+
+		assertEquals(
+			message,
+			"400 BAD_REQUEST \"Upps tu cuenta se encuentra bloqueada, " +
+			"te enviamos a tu correo electrónico las razones\""
 		)
 	}
 
