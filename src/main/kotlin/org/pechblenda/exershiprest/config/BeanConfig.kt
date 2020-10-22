@@ -6,6 +6,7 @@ import com.google.cloud.storage.StorageOptions
 
 import org.pechblenda.exception.HttpExceptionResponse
 import org.pechblenda.mail.GoogleMail
+import org.pechblenda.rest.Request
 import org.pechblenda.rest.Response
 import org.pechblenda.storage.FirebaseStorage
 import org.pechblenda.util.Avatar
@@ -48,6 +49,11 @@ class BeanConfig(
 	@Bean
 	fun response(): Response {
 		return Response()
+	}
+
+	@Bean
+	fun request(): Request {
+		return Request()
 	}
 
 	@Bean

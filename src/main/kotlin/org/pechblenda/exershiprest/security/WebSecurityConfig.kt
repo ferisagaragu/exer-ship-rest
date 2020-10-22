@@ -4,6 +4,7 @@ import org.pechblenda.exershiprest.service.AuthServiceImpl
 import org.pechblenda.security.JwtAuthEntryPoint
 import org.pechblenda.security.JwtAuthTokenFilter
 import org.pechblenda.security.JwtProvider
+import org.pechblenda.security.JwtProviderSocket
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -82,7 +83,6 @@ class WebSecurityConfig(
 		)
 	}
 
-
 	@Bean
 	fun jwtAuthEntryPoint(): JwtAuthEntryPoint {
 		return JwtAuthEntryPoint()
@@ -102,6 +102,11 @@ class WebSecurityConfig(
 	fun authenticationJwtTokenFilter(): JwtAuthTokenFilter {
 		return JwtAuthTokenFilter(jwtProvider, userDetailsService)
 	}
+
+	@Bean
+  fun jwtProviderSocket(): JwtProviderSocket {
+  	return JwtProviderSocket(jwtSecret, jwtExpiration)
+  }
 
 	@Bean
 	@Throws(Exception::class)

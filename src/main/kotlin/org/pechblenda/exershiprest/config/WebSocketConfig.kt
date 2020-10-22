@@ -1,10 +1,11 @@
 package org.pechblenda.exershiprest.config;
 
 import org.pechblenda.exershiprest.service.AuthServiceImpl
-import org.pechblenda.security.JwtProvider
+import org.pechblenda.security.JwtProviderSocket
 
 import org.slf4j.LoggerFactory
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -23,10 +24,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
-class WebSocketConfig(
-	private val jwtProvider: JwtProvider,
-	private val authServiceImpl: AuthServiceImpl
-): WebSocketMessageBrokerConfigurer {
+class WebSocketConfig: WebSocketMessageBrokerConfigurer {
+
+	@Autowired
+	private lateinit var jwtProviderSocket: JwtProviderSocket
+
+	@Autowired
+	private lateinit var authServiceImpl: AuthServiceImpl
 
 	private val logger = LoggerFactory.getLogger(WebSocketConfig::class.java)
 
@@ -59,9 +63,9 @@ class WebSocketConfig(
 						val accessToken = headers[0].replace("Bearer ", "")
 
 						try {
-							val user = jwtProvider.getUserNameFromJwtToken(accessToken)
+							val user = jwtProviderSocket.getUserNameFromJwtToken(accessToken)
 
-							accessor.user = jwtProvider.authenticateWithToken(
+							accessor.user = jwtProviderSocket.authenticateWithToken(
 								accessToken,
 								authServiceImpl.loadUserByUsername(user)
 							)
