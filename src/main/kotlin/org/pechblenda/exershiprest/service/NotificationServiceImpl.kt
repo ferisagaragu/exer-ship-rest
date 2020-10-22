@@ -52,6 +52,7 @@ class NotificationServiceImpl(
 		if (!user.isEmpty) {
 			val userSearched = user.get()
 			val notification = Notification()
+
 			notification.title = title
 			notification.message = message
 			notification.type = type
@@ -59,7 +60,7 @@ class NotificationServiceImpl(
 
 			simpMessagingTemplate.convertAndSend(
 				"/notify/${userSearched.uid}",
-				Response().toMap(notificationDAO.save(notification))
+				response.toMap(notificationDAO.save(notification))
 			)
 		}
 	}
