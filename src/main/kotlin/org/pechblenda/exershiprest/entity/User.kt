@@ -50,6 +50,21 @@ class User(
 	var roles: MutableList<Role>
 ) {
 
+	constructor(): this(
+		uid = UUID.randomUUID(),
+		name = "",
+		lastName = "",
+		userName = "",
+		email = "",
+		password = "",
+		enabled = false,
+		active = false,
+		activatePassword = UUID.randomUUID(),
+		photo = "",
+		refreshToken = "",
+		roles = mutableListOf<Role>()
+	)
+
 	@Key(name = "roles", autoCall = true, defaultNullValue = DefaultValue.JSON_ARRAY)
 	fun convertRoles(): Any {
 		return roles
