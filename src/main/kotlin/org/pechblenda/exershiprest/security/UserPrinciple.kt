@@ -36,7 +36,6 @@ class UserPrinciple(
 		}
 	}
 
-
 	override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
 		return authority
 	}

@@ -50,7 +50,12 @@ class WebSecurityConfig(
 
 	@Throws(Exception::class)
 	override fun configure(http: HttpSecurity) {
-		http.cors().and().csrf().disable().authorizeRequests()
+		http
+			.cors()
+			.and()
+			.csrf()
+			.disable()
+			.authorizeRequests()
 			.antMatchers(
 				"/auth/can-activate-account/**",
 				"/auth/can-change-password/**",
@@ -60,7 +65,7 @@ class WebSecurityConfig(
 				"/auth/sign-up",
 				"/auth/sign-in",
 				"/auth/refresh-token",
-				"/test/**"
+				"/ws/**"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
