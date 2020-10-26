@@ -65,8 +65,7 @@ class WebSecurityConfig(
 				"/auth/recover-password",
 				"/auth/sign-up",
 				"/auth/sign-in",
-				"/auth/refresh-token",
-				"/ws/**"
+				"/auth/refresh-token"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
@@ -102,11 +101,6 @@ class WebSecurityConfig(
 	fun authenticationJwtTokenFilter(): JwtAuthTokenFilter {
 		return JwtAuthTokenFilter(jwtProvider, userDetailsService)
 	}
-
-	@Bean
-  fun jwtProviderSocket(): JwtProviderSocket {
-  	return JwtProviderSocket(jwtSecret, jwtExpiration)
-  }
 
 	@Bean
 	@Throws(Exception::class)
