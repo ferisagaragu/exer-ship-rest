@@ -65,9 +65,6 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	@Autowired
 	private lateinit var message: AuthMessage
 
-	@Autowired
-	private lateinit var notificationService: INotificationService
-
 	@Transactional(readOnly = true)
 	override fun validateToken(): ResponseEntity<Any> {
 		val user = userDAO.findByUserName(
@@ -264,33 +261,6 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		)
 
 		out["session"] = session
-		notificationService.notify(
-			userOut.uid,
-			"Bien",
-			"Inicio sesion",
-			NotificationType.SUCCESS.type
-		)
-
-		notificationService.notify(
-			userOut.uid,
-			"warngs 🍕🍕",
-			"Inicio sesion",
-			NotificationType.WARNING.type
-		)
-
-		notificationService.notify(
-			userOut.uid,
-			"info",
-			"Inicio sesion",
-			NotificationType.INFO.type
-		)
-
-		notificationService.notify(
-			userOut.uid,
-			"error",
-			"Inicio sesion",
-			NotificationType.ERROR.type
-		)
 
 		return out
 			.exclude(

@@ -3,7 +3,9 @@ package org.pechblenda.exershiprest.config
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
+import com.google.firebase.FirebaseOptions
 
+import org.pechblenda.database.FirebaseDatabase
 import org.pechblenda.exception.HttpExceptionResponse
 import org.pechblenda.mail.GoogleMail
 import org.pechblenda.rest.Request
@@ -23,6 +25,8 @@ class BeanConfig(
 	private val googleServiceAccountKey: String,
 	@Value("\${google.auth.bucket}")
 	private val bucket: String,
+	@Value("\${google.url.database}")
+	private val firebaseDatabaseUrl: String,
 	@Value("\${spring.mail.username}")
 	private val userNameMail: String,
 	@Value("\${spring.mail.password}")
@@ -44,6 +48,17 @@ class BeanConfig(
 		}
 
 		return FirebaseStorage(storage, bucket)
+	}
+
+	@Bean
+	fun firebaseDatabase(): FirebaseDatabase {
+		val resource = ClassPathResource(googleServiceAccountKey)
+		val options = FirebaseOptions.builder()
+			.setCredentials(GoogleCredentials.fromStream(resource.inputStream))
+			.setDatabaseUrl(firebaseDatabaseUrl)
+			.build()
+
+		return FirebaseDatabase(options)
 	}
 
 	@Bean

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith
 
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import org.pechblenda.database.FirebaseDatabase
 
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
@@ -56,6 +57,9 @@ class AuthServiceImplTest {
 
 	@MockBean
 	private lateinit var firebaseStorage: FirebaseStorage
+
+	@MockBean
+	private lateinit var firebaseDatabase: FirebaseDatabase
 
 	private var userMount: User? = null
 
