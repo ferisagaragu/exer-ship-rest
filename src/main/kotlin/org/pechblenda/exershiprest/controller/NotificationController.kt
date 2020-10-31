@@ -47,4 +47,46 @@ class NotificationController(
 		}
 	}
 
+	@GetMapping("/test")
+	fun data(): String {
+		/*val data = mutableMapOf<String, String>()
+		data["id"] = "1"
+		data["saludo"] = "como estas 🍕"
+		firebaseDatabase.post("/notifications", data)
+		firebaseDatabase.delete("/notifications/b752c269-93b1-44f2-b0e3-26c032d6de43")*/
+		notificationService.notify(
+			UUID.fromString("804d95c0-1556-4982-a34f-c49875427af8"),
+			"Demo",
+			"Hola Amigo 🌭",
+			"/hola-adios",
+			NotificationType.INFO
+		)
+
+		notificationService.notify(
+			UUID.fromString("8238a1f5-9287-42e7-b764-460b9a5d1285"),
+			"Demo",
+			"Hola Amigo 🌭",
+			null,
+			NotificationType.WARNING
+		)
+
+		notificationService.notify(
+			UUID.fromString("8238a1f5-9287-42e7-b764-460b9a5d1285"),
+			"Demo",
+			"Hola Amigo 🌭",
+			null,
+			NotificationType.ERROR
+		)
+
+		return "hola ❤🧡💛💚💙💜🤎🖤";
+	}
+
+  /*@MessageMapping("/socket")
+  @SendTo("/message")
+  fun greeting(message: String): String {
+    println(message)
+    simpMessagingTemplate.convertAndSend("/message", "Hola wey")
+    return "hola 12"
+  }*/
+
 }

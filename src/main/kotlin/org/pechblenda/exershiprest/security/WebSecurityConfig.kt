@@ -65,7 +65,8 @@ class WebSecurityConfig(
 				"/auth/recover-password",
 				"/auth/sign-up",
 				"/auth/sign-in",
-				"/auth/refresh-token"
+				"/auth/refresh-token",
+				"/notifications/test"
 			).permitAll()
 			.anyRequest()
 			.authenticated()
