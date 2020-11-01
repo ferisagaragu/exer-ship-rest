@@ -4,11 +4,9 @@ import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exception.UnauthenticatedException
 import org.pechblenda.exershiprest.dao.IUserDAO
 import org.pechblenda.exershiprest.entity.User
-import org.pechblenda.exershiprest.enum.NotificationType
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.security.UserPrinciple
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
-import org.pechblenda.exershiprest.service.`interface`.INotificationService
 import org.pechblenda.exershiprest.service.message.AuthMessage
 import org.pechblenda.rest.Request
 import org.pechblenda.rest.Response
@@ -119,9 +117,10 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	override fun activateAccount(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 
-		if (user.password.isEmpty()) {
+		user.password.ifEmpty {
 			throw BadRequestException(message.passwordRequired)
 		}
+
 
 		val findUser = userDAO.findById(user.uid).orElseThrow {
 			throw BadRequestException(message.userNotFount)
