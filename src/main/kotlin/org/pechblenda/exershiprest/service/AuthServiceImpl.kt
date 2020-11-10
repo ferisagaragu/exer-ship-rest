@@ -2,7 +2,9 @@ package org.pechblenda.exershiprest.service
 
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exception.UnauthenticatedException
+import org.pechblenda.exershiprest.dao.IStorageDAO
 import org.pechblenda.exershiprest.dao.IUserDAO
+import org.pechblenda.exershiprest.entity.Storage
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.security.UserPrinciple
@@ -62,6 +64,9 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 	@Autowired
 	private lateinit var message: AuthMessage
+
+	@Autowired
+	private lateinit var storageDAO: IStorageDAO
 
 	@Transactional(readOnly = true)
 	override fun validateToken(): ResponseEntity<Any> {
@@ -181,6 +186,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	override fun signUp(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 		val temporalPassword = text.unique()
+		val photo = Storage()
 
 		if (user.name.isEmpty()) {
 			throw BadRequestException(message.nameRequired)
@@ -204,14 +210,34 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 		user.password = passwordEncoder.encode(temporalPassword)
 
-		user.photo = firebaseStorage.put(
-			"users",
-			"image/png",
-			".png",
+		photo.directory = "users"
+		photo.contentType = "image/png"
+		photo.name = UUID.randomUUID().toString()
+		photo.extension = ".png"
+
+		println(
+						firebaseStorage.put(
+										photo.directory,
+										photo.contentType,
+										photo.name,
+										photo.extension,
+										avatar.createDefaultAccountImage(
+														"${user.name[0]}".toUpperCase()
+										).readBytes()
+						)
+		)
+
+		photo.url = firebaseStorage.put(
+			photo.directory,
+			photo.contentType,
+			photo.name,
+			photo.extension,
 			avatar.createDefaultAccountImage(
 				"${user.name[0]}".toUpperCase()
 			).readBytes()
 		)
+
+		user.photo = storageDAO.save(photo)
 
 		val userOut = userDAO.save(user)
 		mailTemplate.sendActivateAccount(user.name, userOut.uid.toString(), user.email)
@@ -244,7 +270,10 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 				)
 			)
 
-			if (userOut.refreshToken == null || jwtProvider.isJwtExpire(userOut.refreshToken!!)) {
+			if (
+				userOut.refreshToken == null ||
+				(userOut.refreshToken!!.isNotBlank() && jwtProvider.isJwtExpire(userOut.refreshToken!!))
+			) {
 				session = jwtProvider.generateJwtTokenRefresh(authentication)
 				userOut.refreshToken = session["refreshToken"] as String
 			} else {

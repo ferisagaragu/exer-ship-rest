@@ -89,7 +89,7 @@ class AuthControllerTests {
 					enabled = false,
 					active = false,
 					activatePassword = UUID.randomUUID(),
-					photo = "",
+			 		photo = null,
 					refreshToken = null,
 					roles = mutableListOf()
 				)
@@ -455,6 +455,7 @@ class AuthControllerTests {
 	fun `sign-up works`() {
 		Mockito.doReturn("url-image")
 			.`when`(firebaseStorage).put(
+				anyString(),
 				anyString(),
 				anyString(),
 				anyString(),

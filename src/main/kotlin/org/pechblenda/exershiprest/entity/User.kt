@@ -4,15 +4,14 @@ import org.pechblenda.rest.annotation.Key
 import org.pechblenda.rest.enum.DefaultValue
 
 import java.util.UUID
-
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.Table
+import javax.persistence.Id
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Lob
 import javax.persistence.ManyToMany
-import javax.persistence.Table
+import javax.persistence.OneToOne
 
 @Entity
 @Table(name = "users")
@@ -41,8 +40,8 @@ class User(
 
 	var activatePassword: UUID?,
 
-	@Lob
-	var photo: String,
+	@OneToOne
+	var photo: Storage?,
 
 	var refreshToken: String?,
 
@@ -60,7 +59,7 @@ class User(
 		enabled = false,
 		active = false,
 		activatePassword = UUID.randomUUID(),
-		photo = "",
+		photo = null,
 		refreshToken = "",
 		roles = mutableListOf<Role>()
 	)
@@ -68,6 +67,16 @@ class User(
 	@Key(name = "roles", autoCall = true, defaultNullValue = DefaultValue.JSON_ARRAY)
 	fun convertRoles(): Any {
 		return roles
+	}
+
+	@Key(name = "photo", autoCall = true, defaultNullValue = DefaultValue.TEXT)
+	fun convertPhoto(): String {
+		return photo!!.url
+	}
+
+	@Key(name = "photoFile", defaultNullValue = DefaultValue.TEXT)
+	fun convertPhotoName(): String {
+		return "${photo!!.name}${photo!!.extension}"
 	}
 
 }

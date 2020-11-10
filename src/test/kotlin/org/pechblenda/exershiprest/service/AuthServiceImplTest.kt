@@ -16,6 +16,7 @@ import org.pechblenda.database.FirebaseDatabase
 
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
+import org.pechblenda.exershiprest.entity.Storage
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
@@ -33,6 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.transaction.annotation.Transactional
 
 import java.util.UUID
+import org.pechblenda.exershiprest.dao.IStorageDAO
 
 @Transactional
 @SpringBootTest
@@ -92,7 +94,7 @@ class AuthServiceImplTest {
 					enabled = true,
 					active = true,
 					activatePassword = UUID.randomUUID(),
-					photo = "",
+					photo = null,
 					refreshToken = null,
 					roles = mutableListOf()
 				)
@@ -359,6 +361,7 @@ class AuthServiceImplTest {
 	fun `test sign up`() {
 		Mockito.doReturn("url-image")
 			.`when`(firebaseStorage).put(
+				ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyString(),
