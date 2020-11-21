@@ -1,7 +1,13 @@
 package org.pechblenda.exershiprest.entity
 
 import java.util.UUID
-import javax.persistence.*
+
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.Lob
+import javax.persistence.Table
 
 @Entity
 @Table(name = "storage")
@@ -20,10 +26,10 @@ class Storage(
 
 	constructor(): this(
 		uid = UUID.randomUUID(),
-		directory = "users",
-		contentType = "image/png",
-		name = UUID.randomUUID().toString(),
-		extension = ".png",
+		directory = "",
+		contentType = "",
+		name = "",
+		extension = "",
 		url = ""
 	)
 

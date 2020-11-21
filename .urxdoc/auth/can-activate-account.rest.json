@@ -1,0 +1,38 @@
+{
+  "name": "can-activate-account",
+  "authorization": false,
+  "mapping": "/auth/can-activate-account/{userUid}",
+  "access": "get",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para saber si la cuenta de un usuario puede activarse",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-19-2020  22:53:57 p. m.",
+    "status": 200,
+    "data": {
+      "canActivate": true
+    }
+  },
+  "responseBadRequest": {
+    "timestamp": "11-19-2020  22:53:11 p. m.",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "Upps tu cuenta ya esta activada, intenta iniciando sesión de forma habitual",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "pathVariables": [
+    {
+      "name": "userUid",
+      "value": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa",
+      "type": "text",
+      "required": true
+    }
+  ]
+}

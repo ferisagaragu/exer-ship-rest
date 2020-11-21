@@ -41,7 +41,7 @@ class User(
 	var activatePassword: UUID?,
 
 	@OneToOne
-	var photo: Storage?,
+	var photo: Storage,
 
 	var refreshToken: String?,
 
@@ -58,8 +58,8 @@ class User(
 		password = "",
 		enabled = false,
 		active = false,
-		activatePassword = UUID.randomUUID(),
-		photo = null,
+		activatePassword = null,
+		photo = Storage(),
 		refreshToken = "",
 		roles = mutableListOf<Role>()
 	)
@@ -76,7 +76,7 @@ class User(
 
 	@Key(name = "photoFile", defaultNullValue = DefaultValue.TEXT)
 	fun convertPhotoName(): String {
-		return "${photo!!.name}${photo!!.extension}"
+		return "${photo.name}${photo.extension}"
 	}
 
 }

@@ -8,6 +8,7 @@ import org.pechblenda.security.JwtProviderSocket
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.security.reactive.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -66,7 +67,10 @@ class WebSecurityConfig(
 				"/auth/sign-up",
 				"/auth/sign-in",
 				"/auth/refresh-token",
-				"/notifications/test"
+				"/notifications/test",
+				"/assets/**",
+				"/*.*",
+				"/"
 			).permitAll()
 			.anyRequest()
 			.authenticated()

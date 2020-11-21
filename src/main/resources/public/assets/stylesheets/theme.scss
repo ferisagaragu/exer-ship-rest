@@ -1,0 +1,45 @@
+@import '../../../node_modules/@angular/material/theming';
+@include mat-core();
+
+$my-primary: mat-palette($mat-teal, A400);
+$my-accent: mat-palette($mat-blue-grey, 900);
+$my-warn: mat-palette($mat-red, 800);
+
+$my-theme: mat-light-theme($my-primary, $my-accent, $my-warn);
+
+@include angular-material-theme($my-theme);
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #fafafa;
+}
+
+.input-search .mat-form-field-outline-thick {
+  color: #fafafa !important;
+}
+
+.input-search .mat-form-field-label {
+  color: #fafafa !important;
+}
+
+.input-search input::placeholder {
+  color: #fafafa !important;
+}
+
+.input-search input {
+  color: #fafafa !important;
+}
+
+.input-search .mat-form-field-outline {
+  color: #fafafa !important;
+}
+
+.mat-tab-body-content {
+  background: #283142;
+}
+

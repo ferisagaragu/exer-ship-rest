@@ -1,0 +1,33 @@
+{
+  "name": "sign-up",
+  "authorization": false,
+  "mapping": "/auth/sign-up",
+  "access": "post",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para registrar un nuevo usuario",
+  "html": null,
+  "responseCreated": {
+    "timestamp": "11-20-2020  15:58:11 p. m.",
+    "status": 201,
+    "message": "Tu cuenta a sido creada con éxito, te enviamos un correo electrónico con instrucciones de como activarla"
+  },
+  "responseBadRequest": {
+    "timestamp": "11-20-2020  15:58:30 p. m.",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "El nombre de usuario ya esta registrado",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "requestBody": {
+    "name": "Fake name",
+    "userName": "FakeUserName",
+    "email": "fake.email@gmail.com"
+  }
+}

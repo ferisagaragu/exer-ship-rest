@@ -1,0 +1,32 @@
+{
+  "name": "activate-account",
+  "authorization": false,
+  "mapping": "/auth/activate-account",
+  "access": "post",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para activar una cuenta de usuario",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-20-2020  15:10:57 p. m.",
+    "status": 200,
+    "message": "Tu cuenta a sido activada con éxito"
+  },
+  "responseBadRequest": {
+    "timestamp": "11-20-2020  15:11:29 p. m.",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "Upps tu cuenta ya esta activada",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "requestBody": {
+    "password": "Fernny27",
+    "uid": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa"
+  }
+}

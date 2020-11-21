@@ -1,0 +1,35 @@
+{
+  "name": "refresh-token",
+  "authorization": false,
+  "mapping": "/auth/refresh-token",
+  "access": "post",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para refrescar el token de un usuario",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-20-2020  17:01:02 p. m.",
+    "status": 200,
+    "data": {
+      "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJGYWtlVXNlck5hbWUiLCJpYXQiOjE2MDU5MTMyNjIsImV4cCI6MTYwNTkzMTI2Mn0.5-AkVaqwmaRrPukIaDHLcx5mxEM7iuIJOgJRu-IXVDpb12ULGIbizQGGdZsjzBfreOvwkt4C9gbVuGIkXjeHzw",
+      "expiration": 18000000,
+      "expirationDate": "2020-11-21T04:01:02.115+00:00"
+    }
+  },
+  "responseBadRequest": {
+    "timestamp": "11-20-2020  17:02:02 p. m.",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "Upps refreshToken es requerido",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "requestBody": {
+    "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJGYWtlVXNlck5hbWVfcmVmcmVzaCIsImlhdCI6MTYwNTkwOTQ4OSwiZXhwIjoxNjM3NDY2Mzg5fQ.bMfUPwUTBRqg5s8LH7kRT49OgQjB2VPZQtRUFAg0-LQ_V3xvO2B-uTXB2y2F9XVzHugIY8Uura2U6OGFDutEnA"
+  }
+}

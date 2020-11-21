@@ -146,7 +146,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 	override fun changePassword(request: Request): ResponseEntity<Any> {
 		val user = request.to<User>(User::class)
 
-		if (user.password.isEmpty()) {
+		user.password.ifEmpty {
 			throw BadRequestException(message.passwordRequired)
 		}
 
@@ -188,15 +188,15 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		val temporalPassword = text.unique()
 		val photo = Storage()
 
-		if (user.name.isEmpty()) {
+		user.name.ifEmpty {
 			throw BadRequestException(message.nameRequired)
 		}
 
-		if (user.userName.isEmpty()) {
+		user.userName.ifEmpty {
 			throw BadRequestException(message.userNameRequired)
 		}
 
-		if (user.email.isEmpty()) {
+		user.email.ifEmpty {
 			throw BadRequestException(message.emailRequired)
 		}
 
@@ -215,18 +215,6 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		photo.name = UUID.randomUUID().toString()
 		photo.extension = ".png"
 
-		println(
-						firebaseStorage.put(
-										photo.directory,
-										photo.contentType,
-										photo.name,
-										photo.extension,
-										avatar.createDefaultAccountImage(
-														"${user.name[0]}".toUpperCase()
-										).readBytes()
-						)
-		)
-
 		photo.url = firebaseStorage.put(
 			photo.directory,
 			photo.contentType,
@@ -240,6 +228,8 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		user.photo = storageDAO.save(photo)
 
 		val userOut = userDAO.save(user)
+		setRefreshToken(userOut.uid, temporalPassword)
+
 		mailTemplate.sendActivateAccount(user.name, userOut.uid.toString(), user.email)
 
 		return response.created(message.accountCreated)
@@ -325,6 +315,23 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			UsernameNotFoundException(message.userNotFount)
 		}
 		return UserPrinciple.build(user)
+	}
+
+	private fun setRefreshToken(uid: UUID, temporalPassword: String) {
+		val userFind = userDAO.findById(uid).get()
+
+		val authentication: Authentication = authenticationManager.authenticate(
+			UsernamePasswordAuthenticationToken(
+				userFind.userName,
+				temporalPassword
+			)
+		)
+
+		userFind.refreshToken = jwtProvider.generateJwtTokenRefresh(
+			authentication
+		)["refreshToken"] as String
+
+		userDAO.save(userFind)
 	}
 
 }

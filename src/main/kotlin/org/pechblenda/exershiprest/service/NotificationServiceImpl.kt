@@ -42,9 +42,12 @@ class NotificationServiceImpl(
 			SecurityContextHolder.getContext().authentication.name
 		).orElseThrow { BadRequestException(notificationMessage.userNotFount) }
 
-
 		val notification = notificationDAO.findById(notificationSeeUid).orElseThrow {
 			BadRequestException(notificationMessage.notificationNotFount)
+		}
+
+		if (notification.see) {
+			throw BadRequestException("Upps la notificación ya fue marcada como vista")
 		}
 
 		notification.see = true

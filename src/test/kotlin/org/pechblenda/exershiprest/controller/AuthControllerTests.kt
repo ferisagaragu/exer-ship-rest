@@ -35,6 +35,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 import java.util.UUID
+import org.pechblenda.exershiprest.dao.IStorageDAO
+import org.pechblenda.exershiprest.entity.Storage
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +50,9 @@ class AuthControllerTests {
 
 	@Autowired
 	private lateinit var userDAO: IUserDAO
+
+	@Autowired
+	private lateinit var storageDAO: IStorageDAO
 
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
@@ -78,6 +83,17 @@ class AuthControllerTests {
 			userMount!!.activatePassword = UUID.randomUUID()
 			userMount = userDAO.save(userMount!!)
 		} else {
+			val storage = storageDAO.save(
+				Storage(
+					uid = UUID.randomUUID(),
+					directory = "",
+					contentType = "",
+					name = "",
+					extension = "",
+					url = ""
+				)
+			)
+
 			userMount = userDAO.save(
 				User(
 					uid = UUID.randomUUID(),
@@ -89,7 +105,7 @@ class AuthControllerTests {
 					enabled = false,
 					active = false,
 					activatePassword = UUID.randomUUID(),
-			 		photo = null,
+			 		photo = storage,
 					refreshToken = null,
 					roles = mutableListOf()
 				)

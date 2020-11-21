@@ -1,0 +1,7 @@
+{
+  "name": "Notifications",
+  "elements": [
+    ".urxdoc/notifications/find-all.rest.json",
+    ".urxdoc/notifications/set-see.rest.json"
+  ]
+}

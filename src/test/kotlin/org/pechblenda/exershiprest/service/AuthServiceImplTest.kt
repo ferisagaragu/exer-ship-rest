@@ -16,7 +16,6 @@ import org.pechblenda.database.FirebaseDatabase
 
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
-import org.pechblenda.exershiprest.entity.Storage
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
@@ -35,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional
 
 import java.util.UUID
 import org.pechblenda.exershiprest.dao.IStorageDAO
+import org.pechblenda.exershiprest.entity.Storage
 
 @Transactional
 @SpringBootTest
@@ -50,6 +50,9 @@ class AuthServiceImplTest {
 
 	@Autowired
 	private lateinit var userDAO: IUserDAO
+
+	@Autowired
+	private lateinit var storageDAO: IStorageDAO
 
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
@@ -83,6 +86,17 @@ class AuthServiceImplTest {
 			userMount!!.activatePassword = UUID.randomUUID()
 			userMount = userDAO.save(userMount!!)
 		} else {
+			val storage = storageDAO.save(
+				Storage(
+					uid = UUID.randomUUID(),
+					directory = "",
+					contentType = "",
+					name = "",
+					extension = "",
+					url = ""
+				)
+			)
+
 			userMount = userDAO.save(
 				User(
 					uid = UUID.randomUUID(),
@@ -94,7 +108,7 @@ class AuthServiceImplTest {
 					enabled = true,
 					active = true,
 					activatePassword = UUID.randomUUID(),
-					photo = null,
+					photo = storage,
 					refreshToken = null,
 					roles = mutableListOf()
 				)
