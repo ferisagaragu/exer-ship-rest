@@ -62,13 +62,13 @@ class UserServiceImpl(
 		userFind.enabled = user.enabled
 
 		if (
-			"${userFind.photo?.name}${userFind.photo?.extension}" !=
+			"${userFind.photo.name}${userFind.photo.extension}" !=
 			request["photoFile"]
 		) {
 			firebaseStorage.replace(
-				"${userFind.photo?.directory}/${userFind.photo?.name}",
-				userFind.photo!!.contentType,
-				userFind.photo!!.extension,
+				"${userFind.photo.directory}/${userFind.photo.name}",
+				userFind.photo.contentType,
+				userFind.photo.extension,
 				request.toString("base64").split(",")[1]
 			)
 		}

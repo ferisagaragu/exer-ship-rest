@@ -1,0 +1,37 @@
+{
+  "name": "find-all",
+  "authorization": true,
+  "mapping": "/notifications",
+  "access": "get",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para obtener todas las notificaciones de un usuario",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-20-2020  18:32:57 p. m.",
+    "status": 200,
+    "data": [
+      {
+        "uid": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+        "title": "Demo",
+        "message": "Hola Amigo 🌭",
+        "type": "info",
+        "see": false,
+        "createDate": "2020-11-21T00:32:29.590+00:00",
+        "go": "/hola-adios"
+      }
+    ]
+  },
+  "responseBadRequest": {
+    "timestamp": "2020-01-03T16:42:13.727+0000",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "your problem message"
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "sign-in",
+  "authorization": false,
+  "mapping": "/auth/sign-in",
+  "access": "post",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para iniciar sesión en el sistema",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-20-2020  16:53:31 p. m.",
+    "status": 200,
+    "data": {
+      "uid": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa",
+      "name": "Fernando Isaías",
+      "lastName": "García Aguirre",
+      "userName": "fernnypay95",
+      "email": "ferisagaragu@gmail.com",
+      "photo": "https://storage.googleapis.com/exer-ship.appspot.com/users/1c280803-ffee-4031-b182-b1b7f67aeb6e.png?GoogleAccessId=firebase-adminsdk-jm81g@exer-ship.iam.gserviceaccount.com&Expires=10244882055&Signature=kN7FeMM53k%2BNcFRqu%2BG%2FxM6jfPuFYn8PzDq6o1ByAEcOpRMm2psgHM24yiKi%2Fh1zAMqERKrrHQ1cWCRkWa4w1dVkPI%2FunfBJtY%2Bnv0slaKQjunolUVtHH%2FShjYtssj9z4m1K0J%2FRnpdxK%2BFGAe3pGtBssTEFhdfQBAYOT0uPksl3Mvr0kue2XF6onzQNp5rN4hhZz3BOaRr48seTB%2Bj8vgS4MRWeq8CXiPc25NIq47jb3zvABgwfTK%2FnU44a9wlEHPcnAL5p8N9xoiAPkKl5uOSDMVljV%2BlHkZ8rmy7BFrRNHPNv08iN84DY1Swqv9V3f25r1aUm39z3r42kbae9vA%3D%3D",
+      "roles": [],
+      "session": {
+        "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmZXJubnlwYXk5NSIsImlhdCI6MTYwNTkxMjgxMSwiZXhwIjoxNjA1OTMwODExfQ.DnHhFG-oDXNBIZO67RS3UadBIRhlseEb4jm5DpO0bxxK4-mp3WUT5JYa6R5fMTXhQ_sXkmVs_rpbijBQc63PVA",
+        "expiration": 18000000,
+        "expirationDate": "2020-11-21T03:53:31.393+00:00",
+        "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmZXJubnlwYXk5NV9yZWZyZXNoIiwiaWF0IjoxNjA1NTc5MjU5LCJleHAiOjE2MzcxMzYxNTl9.N1aVdL6BgqHODBwN3b94xn3LUBill9s45oMyYfGlim9j1dtD7v91MKU7LS9934lEwyJDrerRJvcsJJDtkXYclg"
+      }
+    }
+  },
+  "responseUnauthorized": {
+    "timestamp": "11-20-2020  16:53:53 p. m.",
+    "status": 401,
+    "error": "UNAUTHORIZED",
+    "message": "Upps la contraseña es incorrecta",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "requestBody": {
+    "userName": "ferisagaragu@gmail.com",
+    "password": "fernny27"
+  }
+}

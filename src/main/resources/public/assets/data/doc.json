@@ -1,0 +1,419 @@
+{
+  "rest": {
+    "title": "Exer-ship REST",
+    "description": "",
+    "icon": "",
+    "version": "1.0.0",
+    "baseUrl": "http://localhost:5000",
+    "bookmarks": [],
+    "credentials": null,
+    "src": [
+      {
+        "name": "Auth",
+        "elements": [
+          {
+            "name": "validate-token",
+            "authorization": true,
+            "mapping": "/auth/validate-token",
+            "access": "get",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para validar si el token aun esta vigente",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-19-2020  22:44:52 p. m.",
+              "status": 200,
+              "data": {
+                "validateToken": true
+              }
+            },
+            "responseBadRequest": {
+              "timestamp": "2020-11-20T05:01:59.237+00:00",
+              "status": 401,
+              "error": "Unauthorized",
+              "message": "Full authentication is required to access this resource",
+              "path": "/auth/validate-token"
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            }
+          },
+          {
+            "name": "can-activate-account",
+            "authorization": false,
+            "mapping": "/auth/can-activate-account/{userUid}",
+            "access": "get",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para saber si la cuenta de un usuario puede activarse",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-19-2020  22:53:57 p. m.",
+              "status": 200,
+              "data": {
+                "canActivate": true
+              }
+            },
+            "responseBadRequest": {
+              "timestamp": "11-19-2020  22:53:11 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps tu cuenta ya esta activada, intenta iniciando sesión de forma habitual",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "pathVariables": [
+              {
+                "name": "userUid",
+                "value": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa",
+                "type": "text",
+                "required": true
+              }
+            ]
+          },
+          {
+            "name": "can-change-password",
+            "authorization": false,
+            "mapping": "/auth/can-change-password/{activatePassword}",
+            "access": "get",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para saber si es valido el código de cambio de contraseña de un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  15:03:11 p. m.",
+              "status": 200,
+              "data": {
+                "canChangePassword": true
+              }
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  14:27:56 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps el código de recuperación no es valido",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "pathVariables": [
+              {
+                "name": "activatePassword",
+                "type": "text",
+                "value": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa",
+                "required": true
+              }
+            ]
+          },
+          {
+            "name": "activate-account",
+            "authorization": false,
+            "mapping": "/auth/activate-account",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para activar una cuenta de usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  15:10:57 p. m.",
+              "status": 200,
+              "message": "Tu cuenta a sido activada con éxito"
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  15:11:29 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps tu cuenta ya esta activada",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "password": "Fernny27",
+              "uid": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa"
+            }
+          },
+          {
+            "name": "change-password",
+            "authorization": false,
+            "mapping": "/auth/change-password",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para cambiar la contraseña a un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  15:14:24 p. m.",
+              "status": 200,
+              "message": "Has cambiado tu contraseña con éxito"
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  15:14:36 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps no se encuentra ningún registro que coincida con el correo electrónico",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "password": "fernny27",
+              "activatePassword": "107553ad-d9c9-45ad-9bd2-96bb4fb4a375"
+            }
+          },
+          {
+            "name": "recover-password",
+            "authorization": false,
+            "mapping": "/auth/recover-password",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para recuperar la contraseña de un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  15:17:32 p. m.",
+              "status": 200,
+              "message": "Hemos enviado envido un correo electrónico a ferisagaragu@gmail.com con las instrucciones para recuperar tu contraseña"
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  15:17:56 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps no se encuentra ningún registro que coincida con el correo electrónico",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "email": "ferisagaragu@gmail.com"
+            }
+          },
+          {
+            "name": "sign-up",
+            "authorization": false,
+            "mapping": "/auth/sign-up",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para registrar un nuevo usuario",
+            "html": null,
+            "responseCreated": {
+              "timestamp": "11-20-2020  15:58:11 p. m.",
+              "status": 201,
+              "message": "Tu cuenta a sido creada con éxito, te enviamos un correo electrónico con instrucciones de como activarla"
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  15:58:30 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "El nombre de usuario ya esta registrado",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "name": "Fake name",
+              "userName": "FakeUserName",
+              "email": "fake.email@gmail.com"
+            }
+          },
+          {
+            "name": "sign-in",
+            "authorization": false,
+            "mapping": "/auth/sign-in",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para iniciar sesión en el sistema",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  16:53:31 p. m.",
+              "status": 200,
+              "data": {
+                "uid": "9bb5bd86-a01c-4eab-a7eb-a9d17f5f18fa",
+                "name": "Fernando Isaías",
+                "lastName": "García Aguirre",
+                "userName": "fernnypay95",
+                "email": "ferisagaragu@gmail.com",
+                "photo": "https://storage.googleapis.com/exer-ship.appspot.com/users/1c280803-ffee-4031-b182-b1b7f67aeb6e.png?GoogleAccessId=firebase-adminsdk-jm81g@exer-ship.iam.gserviceaccount.com&Expires=10244882055&Signature=kN7FeMM53k%2BNcFRqu%2BG%2FxM6jfPuFYn8PzDq6o1ByAEcOpRMm2psgHM24yiKi%2Fh1zAMqERKrrHQ1cWCRkWa4w1dVkPI%2FunfBJtY%2Bnv0slaKQjunolUVtHH%2FShjYtssj9z4m1K0J%2FRnpdxK%2BFGAe3pGtBssTEFhdfQBAYOT0uPksl3Mvr0kue2XF6onzQNp5rN4hhZz3BOaRr48seTB%2Bj8vgS4MRWeq8CXiPc25NIq47jb3zvABgwfTK%2FnU44a9wlEHPcnAL5p8N9xoiAPkKl5uOSDMVljV%2BlHkZ8rmy7BFrRNHPNv08iN84DY1Swqv9V3f25r1aUm39z3r42kbae9vA%3D%3D",
+                "roles": [],
+                "session": {
+                  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmZXJubnlwYXk5NSIsImlhdCI6MTYwNTkxMjgxMSwiZXhwIjoxNjA1OTMwODExfQ.DnHhFG-oDXNBIZO67RS3UadBIRhlseEb4jm5DpO0bxxK4-mp3WUT5JYa6R5fMTXhQ_sXkmVs_rpbijBQc63PVA",
+                  "expiration": 18000000,
+                  "expirationDate": "2020-11-21T03:53:31.393+00:00",
+                  "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmZXJubnlwYXk5NV9yZWZyZXNoIiwiaWF0IjoxNjA1NTc5MjU5LCJleHAiOjE2MzcxMzYxNTl9.N1aVdL6BgqHODBwN3b94xn3LUBill9s45oMyYfGlim9j1dtD7v91MKU7LS9934lEwyJDrerRJvcsJJDtkXYclg"
+                }
+              }
+            },
+            "responseUnauthorized": {
+              "timestamp": "11-20-2020  16:53:53 p. m.",
+              "status": 401,
+              "error": "UNAUTHORIZED",
+              "message": "Upps la contraseña es incorrecta",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "userName": "ferisagaragu@gmail.com",
+              "password": "fernny27"
+            }
+          },
+          {
+            "name": "refresh-token",
+            "authorization": false,
+            "mapping": "/auth/refresh-token",
+            "access": "post",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para refrescar el token de un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  17:01:02 p. m.",
+              "status": 200,
+              "data": {
+                "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJGYWtlVXNlck5hbWUiLCJpYXQiOjE2MDU5MTMyNjIsImV4cCI6MTYwNTkzMTI2Mn0.5-AkVaqwmaRrPukIaDHLcx5mxEM7iuIJOgJRu-IXVDpb12ULGIbizQGGdZsjzBfreOvwkt4C9gbVuGIkXjeHzw",
+                "expiration": 18000000,
+                "expirationDate": "2020-11-21T04:01:02.115+00:00"
+              }
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  17:02:02 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps refreshToken es requerido",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "requestBody": {
+              "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJGYWtlVXNlck5hbWVfcmVmcmVzaCIsImlhdCI6MTYwNTkwOTQ4OSwiZXhwIjoxNjM3NDY2Mzg5fQ.bMfUPwUTBRqg5s8LH7kRT49OgQjB2VPZQtRUFAg0-LQ_V3xvO2B-uTXB2y2F9XVzHugIY8Uura2U6OGFDutEnA"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Notifications",
+        "elements": [
+          {
+            "name": "find-all",
+            "authorization": true,
+            "mapping": "/notifications",
+            "access": "get",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para obtener todas las notificaciones de un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  18:32:57 p. m.",
+              "status": 200,
+              "data": [
+                {
+                  "uid": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+                  "title": "Demo",
+                  "message": "Hola Amigo 🌭",
+                  "type": "info",
+                  "see": false,
+                  "createDate": "2020-11-21T00:32:29.590+00:00",
+                  "go": "/hola-adios"
+                }
+              ]
+            },
+            "responseBadRequest": {
+              "timestamp": "2020-01-03T16:42:13.727+0000",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "your problem message"
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            }
+          },
+          {
+            "name": "set-see",
+            "authorization": true,
+            "mapping": "/notifications/set-see/{notificationSeeUid}",
+            "access": "patch",
+            "bookmark": "",
+            "permissions": [],
+            "description": "Servicio para marcar como vista la notificacion de un usuario",
+            "html": null,
+            "responseOk": {
+              "timestamp": "11-20-2020  18:42:16 p. m.",
+              "status": 200,
+              "data": {
+                "uid": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+                "title": "Demo",
+                "message": "Hola Amigo 🌭",
+                "type": "info",
+                "see": true,
+                "createDate": "2020-11-21T00:32:29.590+00:00",
+                "go": "/hola-adios"
+              }
+            },
+            "responseBadRequest": {
+              "timestamp": "11-20-2020  18:49:22 p. m.",
+              "status": 400,
+              "error": "BAD_REQUEST",
+              "message": "Upps la notificación ya fue marcada como vista",
+              "developMessage": ""
+            },
+            "responseInternalServerError": {
+              "timestamp": "2020-01-03T17:37:02.348+0000",
+              "status": 500,
+              "error": "Internal Server Error",
+              "message": "your error message"
+            },
+            "pathVariables": [
+              {
+                "name": "notificationSeeUid",
+                "value": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+                "type": "text",
+                "required": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

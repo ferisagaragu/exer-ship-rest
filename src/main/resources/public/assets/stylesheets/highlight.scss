@@ -1,0 +1,104 @@
+.highlight-container {
+  background: #283142;
+  font-size: 16px;
+  padding: 1em;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  color: white;
+  font-family: 'google-console', serif;
+  white-space: pre-wrap;
+  height: 250px;
+}
+
+.highlight-editor {
+  background: #283142;
+  font-size: 16px;
+  padding: 1em;
+  border-radius: 8px;
+  color: white;
+  height: 250px;
+  font-family: 'google-console', serif;
+}
+
+.highlight-green>.string {
+  color: #9ccc65 !important;
+}
+
+.highlight-green>.punctuation {
+  color: #67cdcc !important;
+}
+
+.highlight-green>.number {
+  color: #f08d49 !important;
+}
+
+.highlight-green>.boolean {
+  color: #f06292 !important;
+}
+
+.highlight-green>.keyword {
+  color: #3F51B5;
+}
+
+.highlight-pink {
+  color: #f06292;
+}
+
+.highlight-orange>.string {
+  color: #FFAB40;
+}
+
+.highlight-orange>.punctuation {
+  color: #67cdcc;
+}
+
+.highlight-blue>.string {
+  color: #03A9F4;
+}
+
+.highlight-blue>.operator {
+  color: #fafafa;
+}
+
+.highlight-blue>.number {
+  color: #f08d49;
+}
+
+.highlight-blue>.boolean {
+  color: #f06292;
+}
+
+.highlight-blue>.punctuation {
+  color: #ccc;
+}
+
+.highlight-orange>.number {
+  color: #F44336;
+}
+
+.highlight-red {
+  color: #EF5350 !important;
+}
+
+pre {
+  background: #283142;
+  color: #f06292;
+  padding: 1em;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.scroll {
+  overflow: auto;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  right: -5px;
+  background: transparent !important;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(158, 158, 158, 0.8);
+}

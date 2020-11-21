@@ -12,16 +12,18 @@ import org.junit.runner.RunWith
 
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import org.pechblenda.database.FirebaseDatabase
 
+import org.pechblenda.database.FirebaseDatabase
 import org.pechblenda.exception.BadRequestException
 import org.pechblenda.exershiprest.dao.IUserDAO
-import org.pechblenda.exershiprest.entity.Storage
 import org.pechblenda.exershiprest.entity.User
 import org.pechblenda.exershiprest.mail.MailTemplate
 import org.pechblenda.exershiprest.service.`interface`.IAuthService
 import org.pechblenda.rest.Request
 import org.pechblenda.storage.FirebaseStorage
+import org.pechblenda.exershiprest.dao.IStorageDAO
+import org.pechblenda.exershiprest.entity.Storage
+import org.pechblenda.exception.UnauthenticatedException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -34,7 +36,6 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.transaction.annotation.Transactional
 
 import java.util.UUID
-import org.pechblenda.exershiprest.dao.IStorageDAO
 
 @Transactional
 @SpringBootTest
@@ -50,6 +51,9 @@ class AuthServiceImplTest {
 
 	@Autowired
 	private lateinit var userDAO: IUserDAO
+
+	@Autowired
+	private lateinit var storageDAO: IStorageDAO
 
 	@Autowired
 	private lateinit var encoder: PasswordEncoder
@@ -83,6 +87,17 @@ class AuthServiceImplTest {
 			userMount!!.activatePassword = UUID.randomUUID()
 			userMount = userDAO.save(userMount!!)
 		} else {
+			val storage = storageDAO.save(
+				Storage(
+					uid = UUID.randomUUID(),
+					directory = "",
+					contentType = "",
+					name = "",
+					extension = "",
+					url = ""
+				)
+			)
+
 			userMount = userDAO.save(
 				User(
 					uid = UUID.randomUUID(),
@@ -94,7 +109,7 @@ class AuthServiceImplTest {
 					enabled = true,
 					active = true,
 					activatePassword = UUID.randomUUID(),
-					photo = null,
+					photo = storage,
 					refreshToken = null,
 					roles = mutableListOf()
 				)
@@ -473,6 +488,32 @@ class AuthServiceImplTest {
 	}
 
 	@Test
+	fun `test sign in user not found`() {
+		val message = Assertions.assertThrows(BadRequestException::class.java) {
+			val request = Request()
+			request["userName"] = "no-realImpleee@fake.com"
+			request["password"] = "fake"
+
+			authService.signIn(request)
+		}.message
+
+		assertEquals(message, "400 BAD_REQUEST \"Upps no se encuentra el usuario\"")
+	}
+
+	@Test
+	fun `test sign in incorrect password`() {
+		val message = Assertions.assertThrows(UnauthenticatedException::class.java) {
+			val request = Request()
+			request["userName"] = "no-realImpl@fake.com"
+			request["password"] = "fake123"
+
+			authService.signIn(request)
+		}.message
+
+		assertEquals(message, "401 UNAUTHORIZED \"Upps la contraseña es incorrecta\"")
+	}
+
+	@Test
 	fun `test sign in account not activate`() {
 		userMount!!.active = false
 
@@ -506,6 +547,49 @@ class AuthServiceImplTest {
 			"400 BAD_REQUEST \"Upps tu cuenta se encuentra bloqueada, " +
 			"te enviamos a tu correo electrónico las razones\""
 		)
+	}
+
+	@Test
+	fun `test refresh token`() {
+		val requestSignIn = Request()
+		val requestRefreshToken = Request()
+		requestSignIn["userName"] = "no-realImpl@fake.com"
+		requestSignIn["password"] = "fake"
+
+		var refreshToken = (
+			(
+				(
+					authService.signIn(requestSignIn).body as Map<String, Any>
+				)["data"] as Map<String, Any>
+			)["session"] as Map<String, Any>
+		)["refreshToken"]
+
+		requestRefreshToken["refreshToken"] = refreshToken
+
+		val refreshStatus = authService.refreshToken(requestRefreshToken).statusCodeValue
+
+		assertEquals(refreshStatus, 200)
+	}
+
+	@Test
+	fun `test refresh token not params emply`() {
+		val response = Assertions.assertThrows(BadRequestException::class.java) {
+			val requestRefreshToken = Request()
+			requestRefreshToken["refreshToken"] = ""
+			authService.refreshToken(requestRefreshToken)
+		}.message
+
+		assertEquals(response, "400 BAD_REQUEST \"Upps refreshToken es requerido\"")
+	}
+
+	@Test
+	fun `test refresh token not params in request`() {
+		val response = Assertions.assertThrows(BadRequestException::class.java) {
+			val requestRefreshToken = Request()
+			authService.refreshToken(requestRefreshToken)
+		}.message
+
+		assertEquals(response, "400 BAD_REQUEST \"Upps refreshToken es requerido\"")
 	}
 
 }

@@ -1,0 +1,44 @@
+{
+  "name": "set-see",
+  "authorization": true,
+  "mapping": "/notifications/set-see/{notificationSeeUid}",
+  "access": "patch",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para marcar como vista la notificacion de un usuario",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-20-2020  18:42:16 p. m.",
+    "status": 200,
+    "data": {
+      "uid": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+      "title": "Demo",
+      "message": "Hola Amigo 🌭",
+      "type": "info",
+      "see": true,
+      "createDate": "2020-11-21T00:32:29.590+00:00",
+      "go": "/hola-adios"
+    }
+  },
+  "responseBadRequest": {
+    "timestamp": "11-20-2020  18:49:22 p. m.",
+    "status": 400,
+    "error": "BAD_REQUEST",
+    "message": "Upps la notificación ya fue marcada como vista",
+    "developMessage": ""
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  },
+  "pathVariables": [
+    {
+      "name": "notificationSeeUid",
+      "value": "13c411eb-5d5a-4355-969d-2ff67cc041ea",
+      "type": "text",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "rest": {
+    "title": "Exer-ship REST",
+    "description": "",
+    "icon": "",
+    "version": "1.0.0",
+    "baseUrl": "http://localhost:5000",
+    "baseUrlProd": "http://localhost:5000",
+    "bookmarks": [],
+    "credentials": ".urxdoc/config/credentials.config.json",
+    "src": [
+      ".urxdoc/auth/auth.json",
+      ".urxdoc/notifications/notifications.json"
+    ]
+  }
+}

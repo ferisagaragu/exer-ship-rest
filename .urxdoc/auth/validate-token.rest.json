@@ -1,0 +1,30 @@
+{
+  "name": "validate-token",
+  "authorization": true,
+  "mapping": "/auth/validate-token",
+  "access": "get",
+  "bookmark": "",
+  "permissions": [],
+  "description": "Servicio para validar si el token aun esta vigente",
+  "html": null,
+  "responseOk": {
+    "timestamp": "11-19-2020  22:44:52 p. m.",
+    "status": 200,
+    "data": {
+      "validateToken": true
+    }
+  },
+  "responseBadRequest": {
+    "timestamp": "2020-11-20T05:01:59.237+00:00",
+    "status": 401,
+    "error": "Unauthorized",
+    "message": "Full authentication is required to access this resource",
+    "path": "/auth/validate-token"
+  },
+  "responseInternalServerError": {
+    "timestamp": "2020-01-03T17:37:02.348+0000",
+    "status": 500,
+    "error": "Internal Server Error",
+    "message": "your error message"
+  }
+}
