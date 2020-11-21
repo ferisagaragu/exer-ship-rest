@@ -28,7 +28,7 @@ class NotificationServiceImpl(
 ): INotificationService {
 
 	@Transactional(readOnly = true)
-	override fun getNotifications(): ResponseEntity<Any> {
+	override fun findAllNotifications(): ResponseEntity<Any> {
 		val userName = SecurityContextHolder.getContext().authentication.name
 
 		return response.toListMap(
@@ -47,7 +47,7 @@ class NotificationServiceImpl(
 		}
 
 		if (notification.see) {
-			throw BadRequestException("Upps la notificación ya fue marcada como vista")
+			throw BadRequestException(notificationMessage.notificationIsSee)
 		}
 
 		notification.see = true
@@ -68,19 +68,20 @@ class NotificationServiceImpl(
 
 		if (!user.isEmpty) {
 			val userSearched = user.get()
-			val notification = Notification()
-			var out: ResponseMap
+			val out: ResponseMap
+			var notification = Notification()
 
 			notification.title = title
 			notification.message = message
 			notification.type = notificationType.type
-			notification.user = userSearched
 			notification.go = go
-			out = response.toMap(notificationDAO.save(notification))
-			out["uid"] = (out["uid"] as UUID).toString()
+			notification.user = userSearched
+			notification = notificationDAO.save(notification)
+
+			out = response.toMap(notification)
 
 			firebaseDatabase.put(
-				"/notifications/${userSearched.uid}/${out["uid"]}",
+				"/notifications/${userSearched.uid}/${notification.uid}",
 				out
 			)
 		}

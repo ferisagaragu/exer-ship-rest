@@ -137,7 +137,6 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 
 		findUser.password = passwordEncoder.encode(user.password)
 		findUser.active = true
-		findUser.enabled = true
 
 		return response.ok(message.accountActivated)
 	}
@@ -209,6 +208,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		}
 
 		user.password = passwordEncoder.encode(temporalPassword)
+		user.enabled = true
 
 		photo.directory = "users"
 		photo.contentType = "image/png"
@@ -228,7 +228,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		user.photo = storageDAO.save(photo)
 
 		val userOut = userDAO.save(user)
-		setRefreshToken(userOut.uid, temporalPassword)
+		setRefreshTokenSignUp(userOut.uid, temporalPassword)
 
 		mailTemplate.sendActivateAccount(user.name, userOut.uid.toString(), user.email)
 
@@ -298,7 +298,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 			throw BadRequestException(message.refreshTokenRequest)
 		}
 
-		if (request["refreshToken"].toString().isEmpty()) {
+		request["refreshToken"].toString().ifEmpty {
 			throw BadRequestException(message.refreshTokenRequest)
 		}
 
@@ -317,7 +317,7 @@ class AuthServiceImpl: IAuthService, UserDetailsService {
 		return UserPrinciple.build(user)
 	}
 
-	private fun setRefreshToken(uid: UUID, temporalPassword: String) {
+	private fun setRefreshTokenSignUp(uid: UUID, temporalPassword: String) {
 		val userFind = userDAO.findById(uid).get()
 
 		val authentication: Authentication = authenticationManager.authenticate(

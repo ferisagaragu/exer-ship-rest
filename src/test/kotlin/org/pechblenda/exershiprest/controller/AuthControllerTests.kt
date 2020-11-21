@@ -652,7 +652,7 @@ class AuthControllerTests {
 		val requestBodyRefresh = Request()
 		requestBodyRefresh["refreshToken"] = userMount!!.refreshToken
 
-		val responseRefresh = mockMvc.perform(
+		mockMvc.perform(
 			post("/auth/refresh-token")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBodyRefresh.toJSON())

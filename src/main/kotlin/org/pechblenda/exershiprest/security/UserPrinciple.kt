@@ -17,7 +17,8 @@ class UserPrinciple(
 	@JsonIgnore
 	private val password: String,
 
-	private val authority: MutableCollection<out GrantedAuthority>
+	private val authority: MutableCollection<out GrantedAuthority>,
+	private val enabled: Boolean
 ) : UserDetails {
 
 	companion object {
@@ -31,7 +32,8 @@ class UserPrinciple(
 				user.uid,
 				user.userName,
 				user.password,
-				authorities as MutableCollection<out GrantedAuthority>
+				authorities as MutableCollection<out GrantedAuthority>,
+				user.enabled
 			)
 		}
 	}
@@ -61,7 +63,7 @@ class UserPrinciple(
 	}
 
 	override fun isEnabled(): Boolean {
-		return true
+		return enabled
 	}
 
 }

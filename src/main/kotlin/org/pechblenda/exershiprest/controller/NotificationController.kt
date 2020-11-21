@@ -29,7 +29,7 @@ class NotificationController(
 	@GetMapping
 	fun getNotifications(): ResponseEntity<Any> {
 		return try {
-			notificationService.getNotifications()
+			notificationService.findAllNotifications()
 		} catch (e: ResponseStatusException) {
 			httpExceptionResponse.error(e)
 		}

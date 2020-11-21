@@ -4,11 +4,9 @@ import org.pechblenda.exershiprest.service.AuthServiceImpl
 import org.pechblenda.security.JwtAuthEntryPoint
 import org.pechblenda.security.JwtAuthTokenFilter
 import org.pechblenda.security.JwtProvider
-import org.pechblenda.security.JwtProviderSocket
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.security.reactive.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager

@@ -8,5 +8,7 @@ class NotificationMessage(
 	@Value("\${message.auth.user-not-fount}")
 	val userNotFount: String,
 	@Value("\${message.notification.notification-not-Fount}")
-	val notificationNotFount: String
+	val notificationNotFount: String,
+	@Value("\${message.notification.notification-is-see}")
+	val notificationIsSee: String
 )
