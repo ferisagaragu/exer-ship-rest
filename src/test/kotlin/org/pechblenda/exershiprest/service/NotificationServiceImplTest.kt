@@ -226,4 +226,27 @@ class NotificationServiceImplTest {
 		assertEquals(resp?.title, "title1234#")
 	}
 
+	@Test
+	fun `notify user not fount`() {
+		Mockito.doNothing()
+			.`when`(firebaseDatabase).put(
+				ArgumentMatchers.anyString(),
+				any()
+			)
+
+		notificationService.notify(
+			UUID.randomUUID(),
+			"title1234#",
+			"message",
+			"/fake",
+			NotificationType.INFO
+		)
+
+		val resp = notificationsDAO.findAll().find {
+			item -> item.title == "title1234#"
+		}
+
+		assertEquals(resp?.title, null)
+	}
+
 }
